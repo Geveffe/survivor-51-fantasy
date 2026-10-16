@@ -16,6 +16,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - run: sudo apt-get install -y tesseract-ocr && pip install pillow
       - run: python scrape.py docs
       - name: Commit if points changed
         run: |
