@@ -3,93 +3,272 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Survivor 51 Fantasy Points</title>
+<title>Survivor 51 Fantasy Tribe</title>
+<meta name="description" content="Standings, picks and points for our Survivor 51 Fantasy Tribe league.">
+<meta name="theme-color" content="#0c1611">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#faf7f2; --fg:#1f1b16; --muted:#6b6258; --line:#e4ddd2; --head:#2b2420; --headfg:#f5efe6; --accent:#c2410c; --zebra:#f3eee6; --btn:#efe8dd; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#171411; --fg:#ede6dc; --muted:#a0968a; --line:#332c26; --head:#2a231e; --headfg:#f5efe6; --accent:#fb923c; --zebra:#1e1a16; --btn:#2a241f; } }
+  :root {
+    color-scheme: dark;
+    --bg:#0c1611; --surface:#13221a; --surface-2:#1a2d22; --line:#284033; --line-soft:#1f3328;
+    --fg:#f1e9d6; --muted:#9db3a4; --faint:#6f8a7a;
+    --gold:#e9b949; --torch:#e8743a; --up:#62d08f; --down:#ef6b5a;
+    --cell-on:#f3ead6; --cell-ink:#1c1a15; --cell-mvp:#f6d64a; --cell-off:#040705; --cell-gone:#c9372c;
+    --radius:14px;
+    --display:"Cinzel", Georgia, serif;
+  }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif; }
-  main { max-width:1400px; margin:0 auto; padding:24px 16px 48px; }
-  h1 { font-size:1.6rem; margin:0 0 4px; }
-  h2 { font-size:1.2rem; margin:36px 0 6px; }
-  p.meta, p.note { color:var(--muted); margin:0 0 14px; font-size:.9rem; }
-  a { color:var(--accent); }
-  nav { display:flex; gap:16px; flex-wrap:wrap; margin:0 0 8px; font-size:.95rem; }
-  .wrap { overflow:auto; border:1px solid var(--line); border-radius:8px; max-height:85vh; }
-  table { border-collapse:collapse; font-variant-numeric:tabular-nums; }
-  th, td { white-space:nowrap; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:var(--gold); text-underline-offset:3px; }
+  .container { max-width:1240px; margin:0 auto; padding:0 16px; }
+
+  /* Hero */
+  .hero { position:relative; max-width:1600px; margin:0 auto; }
+  .hero img { display:block; width:100%; height:clamp(240px, 40vw, 540px); object-fit:cover; object-position:50% 28%; }
+  .hero::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(12,22,17,0) 45%, rgba(12,22,17,.75) 82%, var(--bg) 100%); pointer-events:none; }
+  .hero-bar { position:relative; z-index:1; margin-top:-56px; display:flex; flex-wrap:wrap; align-items:end; justify-content:space-between; gap:12px 24px; }
+  .eyebrow { font:600 12px/1 Inter, sans-serif; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); margin:0 0 8px; }
+  .hero-bar h1 { font:700 clamp(26px, 4vw, 40px)/1.1 var(--display); margin:0; letter-spacing:.02em; }
+  .updated { color:var(--muted); font-size:13px; margin:0; }
+
+  /* Stats strip */
+  .stats { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin:28px 0 8px; }
+  .stat { background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius); padding:14px 16px; }
+  .stat .k { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+  .stat .v { font:700 20px/1.25 var(--display); margin-top:4px; }
+  .stat .v small { font:600 13px Inter, sans-serif; color:var(--muted); margin-left:6px; }
+  .stat .v small.up { color:var(--up); }
+
+  /* Section chrome */
+  nav.jump { position:sticky; top:0; z-index:20; background:rgba(12,22,17,.88); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-bottom:1px solid var(--line-soft); margin-top:28px; }
+  nav.jump .container { display:flex; gap:22px; overflow-x:auto; }
+  nav.jump a { color:var(--muted); text-decoration:none; font-weight:600; font-size:14px; padding:13px 0; white-space:nowrap; border-bottom:2px solid transparent; }
+  nav.jump a:hover { color:var(--fg); border-color:var(--torch); }
+  section { padding:44px 0 8px; scroll-margin-top:48px; }
+  .section-head { margin-bottom:22px; }
+  h2 { font:700 clamp(22px, 3vw, 28px)/1.2 var(--display); margin:0; letter-spacing:.02em; }
+  .section-head p { color:var(--muted); margin:6px 0 0; max-width:66ch; }
+
+  /* Podium */
+  .podium { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px; align-items:end; padding-top:20px; }
+  .podium-card { position:relative; background:linear-gradient(180deg, var(--surface-2), var(--surface)); border:1px solid var(--line); border-radius:var(--radius); padding:24px 20px 18px; }
+  .podium-card.place-1 { order:2; border-color:rgba(233,185,73,.55); box-shadow:0 0 0 1px rgba(233,185,73,.15), 0 18px 50px -20px rgba(233,185,73,.35); padding-top:32px; }
+  .podium-card.place-2 { order:1; } .podium-card.place-3 { order:3; }
+  .medal { position:absolute; top:-17px; left:20px; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font:800 15px Inter, sans-serif; color:#1b1408; background:#c9ccd1; box-shadow:0 4px 12px rgba(0,0,0,.4); }
+  .place-1 .medal { background:var(--gold); width:40px; height:40px; top:-20px; font-size:18px; }
+  .place-3 .medal { background:#c9864a; }
+  .podium-card h3 { font:700 22px/1.2 var(--display); margin:4px 0 6px; }
+  .place-1 h3 { font-size:26px; }
+  .score b { font:800 40px/1 Inter, sans-serif; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+  .place-1 .score b { color:var(--gold); font-size:48px; }
+  .score span { color:var(--muted); margin-left:6px; font-weight:600; }
+  .podium-card .sub { color:var(--muted); font-size:13px; margin:6px 0 14px; display:flex; gap:8px; align-items:center; }
+  .chips { list-style:none; padding:0; margin:0; display:flex; flex-wrap:wrap; gap:6px; }
+  .chips li { font-size:12px; font-weight:600; padding:3px 9px 3px 8px; border-radius:999px; background:rgba(241,233,214,.06); border:1px solid var(--line); display:inline-flex; align-items:center; }
+  .chips li.mvp { background:rgba(246,214,74,.12); border-color:rgba(246,214,74,.55); color:var(--cell-mvp); }
+  .chips li.mvp::after { content:"MVP"; font-size:9px; letter-spacing:.08em; margin-left:6px; opacity:.85; }
+
+  /* Leaderboard list */
+  .board-wrap { display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:8px 28px; margin-top:28px; }
+  .board-head, .board li { display:grid; grid-template-columns:2.2em 1fr 3em 3.6em 3.6em; align-items:center; gap:6px; }
+  .board-head { padding:0 12px 8px; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); }
+  .board-head span:nth-child(n+3) { text-align:right; }
+  .board { list-style:none; margin:0; padding:0; }
+  .board li { padding:9px 12px; border-radius:10px; font-variant-numeric:tabular-nums; }
+  .board li:nth-child(odd) { background:var(--surface); }
+  .board li:hover { background:var(--surface-2); }
+  .board .rk { color:var(--faint); font-weight:700; }
+  .board .nm { font-weight:600; }
+  .board .ep { color:var(--muted); text-align:right; font-size:13px; }
+  .board .tot { text-align:right; font-weight:800; }
+  .move { font-size:11px; font-weight:700; text-align:right; }
+  .move.up { color:var(--up); } .move.down { color:var(--down); } .move.same { color:var(--faint); }
+
+  /* Panels holding tables */
+  .panel { background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius); padding:18px; }
+  .toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 20px; margin-bottom:16px; }
+  .seg { display:inline-flex; flex-wrap:wrap; background:var(--bg); border:1px solid var(--line); border-radius:999px; padding:3px; }
+  .seg button { font:600 13px Inter, sans-serif; color:var(--muted); background:none; border:0; border-radius:999px; padding:7px 14px; cursor:pointer; }
+  .seg button:hover { color:var(--fg); }
+  .seg button[aria-pressed="true"] { background:var(--torch); color:#1c0f06; }
+  .legend { display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12px; color:var(--muted); }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+  .sw { width:14px; height:14px; border-radius:3px; display:inline-block; border:1px solid rgba(255,255,255,.18); }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--c); display:inline-block; margin-right:8px; flex:none; vertical-align:1px; }
+  .legend .dot { margin-right:0; }
+  .scroll-x { overflow-x:auto; }
+
+  /* Picks grid: same layout as the league's sheet */
+  .grid { border-collapse:separate; border-spacing:2px; margin:0 auto; font-variant-numeric:tabular-nums; }
+  .grid th, .grid td { padding:0; }
+  .grid td { width:30px; min-width:30px; height:26px; text-align:center; font-size:12px; font-weight:700; border-radius:3px; }
+  .grid td.on { background:var(--cell-on); color:var(--cell-ink); }
+  .grid td.mvp { background:var(--cell-mvp); color:var(--cell-ink); font-weight:800; }
+  .grid td.off { background:var(--cell-off); }
+  .grid td.gone { background:var(--cell-gone); }
+  .grid td.gone.mvp { box-shadow:inset 0 0 0 3px var(--cell-mvp); }
+  .grid td:hover { outline:2px solid var(--torch); }
+  .grid th.pl { height:92px; vertical-align:bottom; font-size:12px; font-weight:600; color:var(--muted); }
+  .grid th.pl span { writing-mode:vertical-rl; transform:rotate(180deg); white-space:nowrap; padding:6px 0; display:inline-block; }
+  .grid th.pl.hl { color:var(--gold); }
+  .grid .cn { position:sticky; left:0; z-index:1; background:var(--surface); text-align:left; white-space:nowrap; font-size:13px; font-weight:600; padding:0 12px 0 2px; }
+  .grid tbody tr:hover .cn { color:var(--gold); }
+  .grid .corner { vertical-align:bottom; color:var(--faint); font-size:11px; letter-spacing:.08em; text-transform:uppercase; padding-bottom:8px; }
+  .grid tfoot td { color:var(--fg); font-size:12px; height:28px; border-radius:0; }
+  .grid tfoot .t-total td { color:var(--gold); font-weight:800; border-top:2px solid var(--line); }
+  .grid tfoot .t-total th { border-top:2px solid var(--line); }
+  .grid tfoot .t-rank td { color:var(--muted); font-weight:600; }
+  .grid tfoot th { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); }
 
   /* Castaway table */
-  #t { width:100%; }
-  #t th, #t td { padding:8px 12px; border-bottom:1px solid var(--line); }
-  #t th { background:var(--head); color:var(--headfg); text-align:left; cursor:pointer; user-select:none; position:sticky; top:0; }
-  #t th:hover { text-decoration:underline; }
-  #t tbody tr { background:var(--bg); }
-  #t tbody tr:nth-child(even) { background:var(--zebra); }
-  #t .name { font-weight:600; position:sticky; left:0; background:inherit; }
-  .num { text-align:right; }
-  .rank { color:var(--muted); width:1%; }
-  .total { font-weight:700; color:var(--accent); }
-  #t td.gone { background:#dc2626; border-bottom-color:#b91c1c; border-right:2px solid var(--bg); }
+  .sortable { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+  .sortable th, .sortable td { padding:10px 12px; border-bottom:1px solid var(--line-soft); white-space:nowrap; }
+  .sortable thead th { font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); text-align:left; cursor:pointer; user-select:none; border-bottom-color:var(--line); }
+  .sortable thead th.num { text-align:right; }
+  .sortable thead th:hover { color:var(--fg); }
+  .sortable thead th[aria-sort="descending"]::after { content:" ↓"; color:var(--torch); }
+  .sortable thead th[aria-sort="ascending"]::after { content:" ↑"; color:var(--torch); }
+  .sortable tbody tr:last-child > * { border-bottom:0; }
+  .sortable tbody tr:hover { background:var(--surface-2); }
+  .sortable .cn { font-weight:600; text-align:left; }
+  .sortable .num { text-align:right; }
+  .sortable .tot { font-weight:800; color:var(--gold); }
+  .sortable td.gone { background:linear-gradient(var(--cell-gone), var(--cell-gone)) center / calc(100% - 8px) calc(100% - 14px) no-repeat; }
+  .pick { color:var(--muted); }
+  .pick .n { display:inline-block; min-width:2ch; text-align:right; }
+  .bar { display:inline-block; width:56px; height:6px; border-radius:3px; background:var(--line-soft); margin-right:10px; vertical-align:middle; overflow:hidden; }
+  .bar i { display:block; height:100%; background:var(--torch); border-radius:3px; }
 
-  /* Spreadsheet-style tribe grid: keeps the sheet's black / white / yellow in both themes */
-  .grid { font-size:13px; }
-  .grid th, .grid td { padding:4px 8px; border:1px solid #d4d4d4; text-align:center; min-width:52px; }
-  .grid thead th { position:sticky; top:0; z-index:2; background:var(--head); color:var(--headfg); font-weight:600; }
-  .grid .name { position:sticky; left:0; z-index:1; text-align:left; background:var(--bg); color:var(--fg); font-weight:600; }
-  .grid thead .name { z-index:3; background:var(--head); color:var(--headfg); }
-  .grid td.off { background:#000; border-color:#000; }
-  .grid td.on { background:#fff; color:#111; }
-  .grid td.mvp { background:#fdf254; color:#111; font-weight:700; }
-  .grid td.gone { background:#dc2626; border-color:#b91c1c; }
-  .grid td.gone.mvp { box-shadow:inset 0 0 0 3px #fdf254; }
-  .grid tfoot th, .grid tfoot td { background:var(--zebra); color:var(--fg); font-weight:700; }
-  .grid tfoot tr:first-child > * { border-top:2px solid var(--fg); }
-  .grid td.gtotal { color:var(--accent); }
-  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:.85rem; color:var(--muted); margin:0 0 10px; }
-  .legend span::before { content:""; display:inline-block; width:14px; height:14px; margin-right:6px; vertical-align:-2px; border:1px solid #999; }
-  .legend .l-on::before { background:#fff; } .legend .l-mvp::before { background:#fdf254; } .legend .l-off::before { background:#000; } .legend .l-gone::before { background:#dc2626; }
+  footer { margin:56px 0 0; padding:28px 0 40px; border-top:1px solid var(--line-soft); color:var(--faint); font-size:13px; }
+  footer .container { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px 24px; }
+  footer p { margin:0; max-width:70ch; }
 
-  .tabs { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 10px; }
-  .tabs button { font:inherit; padding:6px 12px; border-radius:6px; border:1px solid var(--line); background:var(--btn); color:var(--fg); cursor:pointer; }
-  .tabs button[aria-pressed="true"] { background:var(--accent); border-color:var(--accent); color:#fff; }
+  @media (max-width: 900px) {
+    .stats { grid-template-columns:repeat(2, minmax(0,1fr)); }
+  }
+  @media (max-width: 680px) {
+    .podium { grid-template-columns:1fr; gap:28px; }
+    .podium-card.place-1, .podium-card.place-2, .podium-card.place-3 { order:0; }
+    .hero-bar { margin-top:-40px; }
+    .panel { padding:12px; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1>Survivor 51 Fantasy Tribe</h1>
-  <p class="meta">Source: <a href="{{SOURCE}}">Global TV Fantasy Tribe results</a> · Last updated {{UPDATED}}</p>
-  <nav><a href="#overall">Overall standings</a><a href="#episodes">By episode</a><a href="#castaways">Castaway points</a></nav>
-  <div class="legend"><span class="l-on">On tribe</span><span class="l-mvp">MVP pick</span><span class="l-off">Not on tribe (no points)</span><span class="l-gone">Castaway not listed that episode (yellow outline = MVP)</span></div>
 
-  <h2 id="overall">Overall points</h2>
-  <p class="note">Each cell is the points that castaway has earned all season. The total row is what each player's tribe has scored.</p>
-  <div class="wrap">{{OVERALL}}</div>
+<header>
+  <div class="hero"><img src="hero.jpg" alt="Survivor Fantasy Tribe: castaways walking toward a jungle waterfall, with host Jeff Probst" width="1200" height="791"></div>
+  <div class="container hero-bar">
+    <div>
+      <p class="eyebrow">Season 51 · League standings</p>
+      <h1>The Tribe Has Spoken</h1>
+    </div>
+    <p class="updated">Through Episode {{LAST_EP}} · Updated {{UPDATED}}</p>
+  </div>
+  <div class="container">
+    <div class="stats">
+      <div class="stat"><div class="k">Leader</div><div class="v">{{LEADER}}<small>{{LEADER_PTS}} pts</small></div></div>
+      <div class="stat"><div class="k">Best in Ep {{LAST_EP}}</div><div class="v">{{BEST_EP}}<small>+{{BEST_EP_PTS}}</small></div></div>
+      <div class="stat"><div class="k">Biggest climber</div><div class="v">{{CLIMBER}}<small class="up">{{CLIMB}}</small></div></div>
+      <div class="stat"><div class="k">Top castaway</div><div class="v">{{HOT}}<small>{{HOT_PTS}} pts</small></div></div>
+    </div>
+  </div>
+</header>
 
-  <h2 id="episodes">Points by episode</h2>
-  <div class="tabs" role="group" aria-label="Episode">{{EP_BUTTONS}}</div>
-  <div class="wrap">{{EP_TABLES}}</div>
+<nav class="jump" aria-label="Sections">
+  <div class="container"><a href="#standings">Standings</a><a href="#picks">Picks grid</a><a href="#castaways">Castaways</a></div>
+</nav>
 
-  <h2 id="castaways">Castaway points</h2>
-  <p class="note">Click a column header to sort.</p>
-  <div class="wrap">{{CASTAWAYS}}</div>
+<main class="container">
+  <section id="standings">
+    <div class="section-head">
+      <h2>Standings</h2>
+      <p>A player's score is the total points earned by their eight castaways. Arrows show movement since the previous episode.</p>
+    </div>
+    <div class="podium">
+{{PODIUM}}
+    </div>
+    <div class="board-wrap">
+{{LEADERBOARD}}
+    </div>
+  </section>
+
+  <section id="picks">
+    <div class="section-head">
+      <h2>Picks Grid</h2>
+      <p>Castaways down the side, players across the top, laid out like the league sheet. Hover a cell for details.</p>
+    </div>
+    <div class="panel">
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Points shown">{{VIEW_BUTTONS}}</div>
+        <div class="legend">
+          <span><i class="sw" style="background:var(--cell-on)"></i>On tribe</span>
+          <span><i class="sw" style="background:var(--cell-mvp)"></i>MVP</span>
+          <span><i class="sw" style="background:var(--cell-off)"></i>Not on tribe</span>
+          <span><i class="sw" style="background:var(--cell-gone)"></i>Not listed that episode</span>
+          {{LEGEND_TRIBES}}
+        </div>
+      </div>
+      <div class="scroll-x">{{GRIDS}}</div>
+    </div>
+  </section>
+
+  <section id="castaways">
+    <div class="section-head">
+      <h2>Castaways</h2>
+      <p>Points each castaway earned per episode, and how many of our players have them. Click a column to sort.</p>
+    </div>
+    <div class="panel scroll-x">{{CASTAWAYS}}</div>
+  </section>
 </main>
+
+<footer>
+  <div class="container">
+    <p>Points from <a href="{{SOURCE}}">Global TV's Survivor 51 Fantasy Tribe results</a>, checked every few hours. Scoring starts with Episode 2; end-of-season placement and MVP bonuses aren't included yet.</p>
+    <p>Updated {{UPDATED}}</p>
+  </div>
+</footer>
+
 <script>
-  const t = document.getElementById('t');
-  t.querySelectorAll('th').forEach((th, i) => {
-    let asc = false;
-    th.addEventListener('click', () => {
-      asc = !asc;
-      const num = th.dataset.sort === 'num';
-      const val = r => { const s = r.cells[i].textContent; return num ? (parseFloat(s) || -Infinity) : s.toLowerCase(); };
-      const rows = [...t.tBodies[0].rows].sort((a, b) => (val(a) > val(b) ? 1 : val(a) < val(b) ? -1 : 0) * (asc ? 1 : -1));
-      rows.forEach(r => t.tBodies[0].appendChild(r));
-    });
-  });
-  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
-    document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-pressed', x === b));
-    document.querySelectorAll('.ep').forEach(d => d.hidden = d.dataset.ep !== b.dataset.ep);
+  // Season / episode toggle for the picks grid
+  const buttons = document.querySelectorAll('.seg button');
+  buttons.forEach(b => b.addEventListener('click', () => {
+    buttons.forEach(x => x.setAttribute('aria-pressed', x === b));
+    document.querySelectorAll('.view').forEach(v => v.hidden = v.dataset.view !== b.dataset.view);
   }));
+
+  // Highlight the player name above the hovered cell
+  document.querySelectorAll('.grid').forEach(g => {
+    const heads = g.tHead.rows[0].cells;
+    let cur = null;
+    const clear = () => { if (cur) cur.classList.remove('hl'); cur = null; };
+    g.addEventListener('mouseover', ev => {
+      const td = ev.target.closest('td');
+      clear();
+      if (td && td.cellIndex > 0) { cur = heads[td.cellIndex]; cur.classList.add('hl'); }
+    });
+    g.addEventListener('mouseleave', clear);
+  });
+
+  // Sortable castaway table: numbers sort high-to-low first, text A-Z first
+  document.querySelectorAll('.sortable').forEach(t => {
+    const ths = t.tHead.querySelectorAll('th');
+    ths.forEach((th, i) => th.addEventListener('click', () => {
+      const num = th.dataset.sort === 'num';
+      const prev = th.getAttribute('aria-sort');
+      const desc = prev ? prev === 'ascending' : num;
+      ths.forEach(x => x.removeAttribute('aria-sort'));
+      th.setAttribute('aria-sort', desc ? 'descending' : 'ascending');
+      const val = r => { const s = r.cells[i].textContent.trim(); return num ? (s === '' ? -Infinity : parseFloat(s)) : s.toLowerCase(); };
+      [...t.tBodies[0].rows]
+        .sort((a, b) => (val(a) > val(b) ? 1 : val(a) < val(b) ? -1 : 0) * (desc ? -1 : 1))
+        .forEach(r => t.tBodies[0].appendChild(r));
+    }));
+  });
 </script>
 </body>
 </html>

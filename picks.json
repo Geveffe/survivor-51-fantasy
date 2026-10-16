@@ -21,6 +21,38 @@
   "Rob",
   "Sharonda"
  ],
+ "tribes": {
+  "Toka": {
+   "color": "#f2c230",
+   "members": [
+    "An",
+    "Brady",
+    "Devin",
+    "Jelly",
+    "Jenna",
+    "Kilby",
+    "Lewis",
+    "Maggie",
+    "Mike",
+    "Patt"
+   ]
+  },
+  "Savu": {
+   "color": "#a77bea",
+   "members": [
+    "Alexis",
+    "Ana",
+    "Carter",
+    "Cristian",
+    "Eric",
+    "Kristin",
+    "Linnea",
+    "Ori",
+    "Rob",
+    "Sharonda"
+   ]
+  }
+ },
  "players": [
   {
    "name": "Adam",
