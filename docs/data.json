@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-16 22:23 UTC",
+  "updated": "2026-10-16 22:28 UTC",
   "source": "https://www.globaltv.com/survivor-51-fantasy-tribe/",
   "episodes": {
     "2": {
@@ -64,5 +64,29 @@
       "Ori": 1,
       "Sharonda": 11
     }
+  },
+  "departures": {
+    "2": [
+      {
+        "name": "Ana",
+        "how": "voted out"
+      }
+    ],
+    "3": [
+      {
+        "name": "Patt",
+        "how": "voted out"
+      },
+      {
+        "name": "Rob",
+        "how": "quit"
+      }
+    ],
+    "4": [
+      {
+        "name": "Jenna",
+        "how": "voted out"
+      }
+    ]
   }
 }

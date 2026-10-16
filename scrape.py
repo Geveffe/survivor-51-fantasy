@@ -5,9 +5,11 @@ Each episode's points are published as an image whose alt text lists every
 castaway's points ("Alexis total points: 1; An total points: 11; ...").
 """
 import html
+import io
 import json
 import re
 import shutil
+import subprocess
 import sys
 import urllib.request
 from datetime import datetime, timezone
@@ -24,6 +26,7 @@ class ResultsParser(HTMLParser):
         self.in_results = False
         self.episode = None
         self.episodes = {}  # episode number -> {name: points}
+        self.images = {}  # episode number -> points image URL
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -35,6 +38,7 @@ class ResultsParser(HTMLParser):
                 scores[name.strip()] = int(pts)
             if scores:
                 self.episodes[self.episode] = scores
+                self.images[self.episode] = attrs.get("src")
                 self.episode = None
 
     def handle_data(self, data):
@@ -49,6 +53,67 @@ def fetch():
     req = urllib.request.Request(URL, headers={"User-Agent": "Mozilla/5.0 (survivor-fantasy-table)"})
     with urllib.request.urlopen(req, timeout=30) as r:
         return r.read().decode("utf-8", "replace")
+
+
+def ocr_departures(url, names):
+    """Read each castaway's points breakdown from the episode image.
+
+    Anyone without a "Survived the Week" line left that episode. Returns None when
+    OCR isn't available or the image doesn't look like one row per castaway.
+    """
+    if not url or not shutil.which("tesseract"):
+        return None
+    try:
+        from PIL import Image, ImageOps
+    except ImportError:
+        return None
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (survivor-fantasy-table)"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        im = Image.open(io.BytesIO(r.read())).convert("L")
+    w, h = im.size
+    row = h / len(names)
+    left = []
+    for i, name in enumerate(names):
+        # The breakdown text sits in the right-hand ~40% of each castaway's row.
+        crop = im.crop((int(w * 0.58), int(i * row), w, int((i + 1) * row)))
+        crop = ImageOps.invert(crop).resize((crop.width * 2, crop.height * 2))
+        buf = io.BytesIO()
+        crop.save(buf, "PNG")
+        text = subprocess.run(["tesseract", "stdin", "stdout", "--psm", "6"], input=buf.getvalue(),
+                              capture_output=True).stdout.decode().lower()
+        if "breakdown" not in text:
+            return None
+        if "survived" not in text:
+            left.append({"name": name, "how": "quit" if "forfeit" in text else "voted out"})
+    return left
+
+
+def find_departures(episodes, images, previous):
+    """Who left in each episode: OCR when possible, else what we found before,
+    else castaways who drop off the next episode's list."""
+    eps = sorted(episodes)
+    out = {}
+    for i, ep in enumerate(eps):
+        try:
+            found = ocr_departures(images.get(ep), list(episodes[ep]))
+        except Exception as exc:  # network or OCR trouble shouldn't break the site
+            print(f"OCR failed for episode {ep}: {exc}")
+            found = None
+        if found is None and str(ep) in previous:
+            found = previous[str(ep)]
+        if found is None and i + 1 < len(eps):
+            found = [{"name": c, "how": "voted out"} for c in episodes[ep] if c not in episodes[eps[i + 1]]]
+        if found is not None:
+            out[ep] = found
+    return out
+
+
+def departure_text(left):
+    """[{name: Patt, how: voted out}, {name: Rob, how: quit}] -> 'Patt voted out, Rob quit'"""
+    groups = {}
+    for d in left:
+        groups.setdefault(d["how"], []).append(d["name"])
+    return ", ".join(" & ".join(names) + " " + how for how, names in groups.items())
 
 
 def rank(values):
@@ -118,6 +183,42 @@ def move_badge(m):
     if m < 0:
         return f'<span class="move down" title="Down {-m} since last episode">▼{-m}</span>'
     return '<span class="move same" title="No change">–</span>'
+
+
+def ordinal(n):
+    return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
+
+
+def weekly_report(d, departures):
+    """The group-chat summary: 1st, 2nd, 3rd, 15th and last place by overall points."""
+    st = d["standings"]
+
+    def at(pos):
+        s = st[pos - 1]
+        return " & ".join(x["name"] for x in st if x["total"] == s["total"]), s["total"]
+
+    places = [(ordinal(k), k) for k in (1, 2, 3, 15) if k <= len(st)] + [("Last", len(st))]
+    rows = [(label, *at(pos)) for label, pos in places]
+    last = d["eps"][-1]
+    gone = departure_text(departures.get(last, []))
+    title = f"EPISODE #{last}:" + (f" ({gone})" if gone else "")
+    text = "\n".join([title] + [f"{label} Place = {who} = {pts} pts" for label, who, pts in rows])
+    items = "".join(
+        f'<li><span class="place">{label} place</span><span class="who">{e(who)}</span>'
+        f'<span class="pts">{pts}<small> pts</small></span></li>'
+        for label, who, pts in rows
+    )
+    return f'''<section class="report" aria-labelledby="report-title">
+  <div class="report-head">
+    <div>
+      <p class="eyebrow">Weekly report</p>
+      <h2 id="report-title">Episode {last}{f' <span>{e(gone)}</span>' if gone else ''}</h2>
+    </div>
+    <button type="button" class="copy" data-copy="report-text">Copy for group chat</button>
+  </div>
+  <ol class="report-list">{items}</ol>
+  <pre id="report-text" hidden>{e(text)}</pre>
+</section>'''
 
 
 def podium(d):
@@ -196,8 +297,9 @@ def tribe_grid(d, points, label):
     )
 
 
-def castaway_table(d):
+def castaway_table(d, departures):
     eps = d["eps"]
+    out_in = {x["name"]: (ep, x["how"]) for ep, left in departures.items() for x in left}
     head = "".join(f'<th class="num" data-sort="num" scope="col">Ep {n}</th>' for n in eps)
     rows = sorted(d["castaways"], key=lambda c: (-c["total"], c["name"]))
     most = max(c["picked_by"] for c in rows) or 1
@@ -208,8 +310,12 @@ def castaway_table(d):
             for x in c["points"]
         )
         bar = f'<span class="bar"><i style="width:{100 * c["picked_by"] / most:.0f}%"></i></span>'
+        tag = ""
+        if c["name"] in out_in:
+            ep, how = out_in[c["name"]]
+            tag = f' <span class="out-tag" title="{e(how.capitalize())} in episode {ep}">Out · Ep {ep}</span>'
         body.append(
-            f'<tr><th class="cn" scope="row">{tribe_dot(d, c["name"])}{e(c["name"])}</th>{cells}'
+            f'<tr><th class="cn" scope="row">{tribe_dot(d, c["name"])}{e(c["name"])}{tag}</th>{cells}'
             f'<td class="num tot">{c["total"]}</td><td class="num pick">{bar}<span class="n">{c["picked_by"]}</span></td></tr>'
         )
     return (
@@ -220,7 +326,7 @@ def castaway_table(d):
     )
 
 
-def render(d, updated):
+def render(d, departures, updated):
     eps = d["eps"]
     last = eps[-1]
     overall = {c["name"]: c["total"] for c in d["castaways"]}
@@ -236,7 +342,6 @@ def render(d, updated):
     legend_tribes = "".join(
         f'<span><i class="dot" style="--c:{info["color"]}"></i>{e(t)}</span>' for t, info in d["tribes"].items()
     )
-    leader = d["standings"][0]
     hot = max(d["castaways"], key=lambda c: c["total"])
     best_ep = max(d["standings"], key=lambda s: s["last"])
     climber = max(d["standings"], key=lambda s: s["move"])
@@ -245,13 +350,14 @@ def render(d, updated):
         "LEADERBOARD": leaderboard(d),
         "VIEW_BUTTONS": buttons,
         "GRIDS": grids,
-        "CASTAWAYS": castaway_table(d),
+        "CASTAWAYS": castaway_table(d, departures),
+        "REPORT": weekly_report(d, departures),
         "LEGEND_TRIBES": legend_tribes,
         "LAST_EP": str(last),
         "CLIMBER": e(climber["name"]) if climber["move"] > 0 else "No movement",
         "CLIMB": f"▲{climber['move']}" if climber["move"] > 0 else "",
-        "LEADER": e(leader["name"]),
-        "LEADER_PTS": str(leader["total"]),
+        "REMAINING": str(len(d["castaways"]) - sum(len(v) for v in departures.values())),
+        "N_CAST": str(len(d["castaways"])),
         "HOT": e(hot["name"]),
         "HOT_PTS": str(hot["total"]),
         "BEST_EP": e(best_ep["name"]),
@@ -279,14 +385,20 @@ def main():
                 p.episodes[int(ep)][name] = pts
     picks = json.loads((here / "picks.json").read_text())
     d = build(p.episodes, picks)
+    try:
+        previous = json.loads((OUT / "data.json").read_text()).get("departures", {})
+    except (OSError, ValueError):
+        previous = {}
+    departures = find_departures(p.episodes, p.images, previous)
     now = datetime.now(timezone.utc)
     updated = now.strftime("%b %-d, %Y · %-I:%M %p UTC")
     OUT.mkdir(parents=True, exist_ok=True)
     shutil.copytree(here / "static", OUT, dirs_exist_ok=True)
-    (OUT / "index.html").write_text(render(d, updated))
+    (OUT / "index.html").write_text(render(d, departures, updated))
     (OUT / "data.json").write_text(json.dumps(
         {"updated": now.strftime("%Y-%m-%d %H:%M UTC"), "source": URL,
-         "episodes": {str(k): p.episodes[k] for k in d["eps"]}}, indent=2))
+         "episodes": {str(k): p.episodes[k] for k in d["eps"]},
+         "departures": {str(k): v for k, v in departures.items()}}, indent=2))
     print(f"Episodes {d['eps']}; {len(d['castaways'])} castaways, {len(d['players'])} players -> {OUT}/index.html")
 
 
