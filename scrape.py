@@ -190,7 +190,7 @@ def ordinal(n):
 
 
 def weekly_report(d, departures):
-    """The group-chat summary: 1st, 2nd, 3rd, 15th and last place by overall points."""
+    """Weekly summary: 1st, 2nd, 3rd, 15th and last place by overall points."""
     st = d["standings"]
 
     def at(pos):
@@ -201,8 +201,6 @@ def weekly_report(d, departures):
     rows = [(label, *at(pos)) for label, pos in places]
     last = d["eps"][-1]
     gone = departure_text(departures.get(last, []))
-    title = f"EPISODE #{last}:" + (f" ({gone})" if gone else "")
-    text = "\n".join([title] + [f"{label} Place = {who} = {pts} pts" for label, who, pts in rows])
     items = "".join(
         f'<li><span class="place">{label} place</span><span class="who">{e(who)}</span>'
         f'<span class="pts">{pts}<small> pts</small></span></li>'
@@ -214,10 +212,8 @@ def weekly_report(d, departures):
       <p class="eyebrow">Weekly report</p>
       <h2 id="report-title">Episode {last}{f' <span>{e(gone)}</span>' if gone else ''}</h2>
     </div>
-    <button type="button" class="copy" data-copy="report-text">Copy for group chat</button>
   </div>
   <ol class="report-list">{items}</ol>
-  <pre id="report-text" hidden>{e(text)}</pre>
 </section>'''
 
 

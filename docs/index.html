@@ -44,9 +44,6 @@
   .report-head .eyebrow { color:var(--torch); }
   .report h2 { font-size:clamp(22px, 3vw, 28px); }
   .report h2 span { font:600 15px Inter, sans-serif; color:var(--muted); margin-left:10px; letter-spacing:0; }
-  .copy { font:600 13px Inter, sans-serif; color:var(--fg); background:rgba(241,233,214,.06); border:1px solid var(--line); border-radius:999px; padding:8px 16px; cursor:pointer; }
-  .copy:hover { border-color:var(--torch); }
-  .copy.done { background:var(--up); border-color:var(--up); color:#08140d; }
   .report-list { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:10px; }
   .report-list li { background:rgba(12,22,17,.55); border:1px solid var(--line-soft); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:2px; min-width:0; }
   .report-list .place { font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
@@ -186,7 +183,7 @@
       <p class="eyebrow">Season 51 · League standings</p>
       <h1>The Tribe Has Spoken</h1>
     </div>
-    <p class="updated">Through Episode 4 · Updated Oct 16, 2026 · 10:28 PM UTC</p>
+    <p class="updated">Through Episode 4 · Updated Oct 16, 2026 · 10:33 PM UTC</p>
   </div>
   <div class="container">
 <section class="report" aria-labelledby="report-title">
@@ -195,15 +192,8 @@
       <p class="eyebrow">Weekly report</p>
       <h2 id="report-title">Episode 4 <span>Jenna voted out</span></h2>
     </div>
-    <button type="button" class="copy" data-copy="report-text">Copy for group chat</button>
   </div>
   <ol class="report-list"><li><span class="place">1st place</span><span class="who">Dianna</span><span class="pts">267<small> pts</small></span></li><li><span class="place">2nd place</span><span class="who">Mike</span><span class="pts">255<small> pts</small></span></li><li><span class="place">3rd place</span><span class="who">Marisa</span><span class="pts">252<small> pts</small></span></li><li><span class="place">15th place</span><span class="who">BenK</span><span class="pts">223<small> pts</small></span></li><li><span class="place">Last place</span><span class="who">Harrison</span><span class="pts">184<small> pts</small></span></li></ol>
-  <pre id="report-text" hidden>EPISODE #4: (Jenna voted out)
-1st Place = Dianna = 267 pts
-2nd Place = Mike = 255 pts
-3rd Place = Marisa = 252 pts
-15th Place = BenK = 223 pts
-Last Place = Harrison = 184 pts</pre>
 </section>
     <div class="stats">
       <div class="stat"><div class="k">Castaways left</div><div class="v">16<small>of 20</small></div></div>
@@ -285,20 +275,11 @@ Last Place = Harrison = 184 pts</pre>
 <footer>
   <div class="container">
     <p>Points from <a href="https://www.globaltv.com/survivor-51-fantasy-tribe/#results">Global TV's Survivor 51 Fantasy Tribe results</a>, checked every few hours. Scoring starts with Episode 2; end-of-season placement and MVP bonuses aren't included yet.</p>
-    <p>Updated Oct 16, 2026 · 10:28 PM UTC</p>
+    <p>Updated Oct 16, 2026 · 10:33 PM UTC</p>
   </div>
 </footer>
 
 <script>
-  // Copy the weekly report as plain text
-  document.querySelectorAll('.copy').forEach(b => b.addEventListener('click', async () => {
-    const text = document.getElementById(b.dataset.copy).textContent;
-    const label = b.textContent;
-    try { await navigator.clipboard.writeText(text); b.textContent = 'Copied!'; b.classList.add('done'); }
-    catch { b.textContent = 'Copy failed'; }
-    setTimeout(() => { b.textContent = label; b.classList.remove('done'); }, 1800);
-  }));
-
   // Season / episode toggle for the picks grid
   const buttons = document.querySelectorAll('.seg button');
   buttons.forEach(b => b.addEventListener('click', () => {
