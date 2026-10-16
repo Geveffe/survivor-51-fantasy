@@ -68,7 +68,7 @@ def castaway_table(eps, rows):
     body = []
     for i, r in enumerate(rows, 1):
         cells = "".join(
-            f'<td class="num">{p}</td>' if p is not None else '<td class="num out" title="Not listed">–</td>'
+            f'<td class="num">{p}</td>' if p is not None else '<td class="gone" title="Not listed"></td>'
             for p in r["points"]
         )
         body.append(

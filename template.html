@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Survivor 51 Fantasy Points</title>
 <style>
-  :root { --bg:#faf7f2; --fg:#1f1b16; --muted:#6b6258; --line:#e4ddd2; --head:#2b2420; --headfg:#f5efe6; --accent:#c2410c; --zebra:#f3eee6; --out:#b5aca0; --btn:#efe8dd; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#171411; --fg:#ede6dc; --muted:#a0968a; --line:#332c26; --head:#2a231e; --headfg:#f5efe6; --accent:#fb923c; --zebra:#1e1a16; --out:#5c544b; --btn:#2a241f; } }
+  :root { --bg:#faf7f2; --fg:#1f1b16; --muted:#6b6258; --line:#e4ddd2; --head:#2b2420; --headfg:#f5efe6; --accent:#c2410c; --zebra:#f3eee6; --btn:#efe8dd; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#171411; --fg:#ede6dc; --muted:#a0968a; --line:#332c26; --head:#2a231e; --headfg:#f5efe6; --accent:#fb923c; --zebra:#1e1a16; --btn:#2a241f; } }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif; }
   main { max-width:1400px; margin:0 auto; padding:24px 16px 48px; }
@@ -30,7 +30,7 @@
   .num { text-align:right; }
   .rank { color:var(--muted); width:1%; }
   .total { font-weight:700; color:var(--accent); }
-  .out { color:var(--out); }
+  #t td.gone { background:#dc2626; border-bottom-color:#b91c1c; border-right:2px solid var(--bg); }
 
   /* Spreadsheet-style tribe grid: keeps the sheet's black / white / yellow in both themes */
   .grid { font-size:13px; }
