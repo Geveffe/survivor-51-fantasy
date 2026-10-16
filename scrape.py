@@ -145,6 +145,12 @@ def main():
     p.feed(fetch())
     if not p.episodes:
         sys.exit("No episode results found - page layout may have changed.")
+    for ep, fixes in json.loads(Path(__file__).with_name("corrections.json").read_text()).items():
+        if ep.isdigit() and int(ep) in p.episodes:
+            for name, pts in fixes.items():
+                if p.episodes[int(ep)].get(name) == pts:
+                    print(f"Correction for {name} ep {ep} now matches the source; it can be removed.")
+                p.episodes[int(ep)][name] = pts
     eps, rows = build(p.episodes)
     picks = json.loads(Path(__file__).with_name("picks.json").read_text())
     updated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
