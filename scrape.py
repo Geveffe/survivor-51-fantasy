@@ -279,7 +279,7 @@ def tribe_grid(d, points, label):
             if c["name"] == p["mvp"]:
                 cls += " mvp"
             title = f'{p["name"]} · {c["name"]}' + (" (MVP)" if c["name"] == p["mvp"] else "")
-            title += " · not listed" if v is None else f" · {v} pts"
+            title += " · out" if v is None else f" · {v} pts"
             cells.append(f'<td class="{cls}" title="{e(title)}">{"" if v is None else v}</td>')
         body.append(f'<tr><th class="cn" scope="row">{tribe_dot(d, c["name"])}{e(c["name"])}</th>{"".join(cells)}</tr>')
     tot = "".join(f"<td>{totals[p['name']]}</td>" for p in players)
