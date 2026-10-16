@@ -1,0 +1,28 @@
+name: Scrape results
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */3 * * *"   # every 3 hours
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scrape.py docs
+      - name: Commit if points changed
+        run: |
+          # Ignore runs where only the "updated" timestamp changed
+          if ! git diff -U0 docs/data.json | grep '^[+-] ' | grep -qv '"updated"'; then
+            echo "No new results"; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs && git commit -m "Update fantasy points" && git push
