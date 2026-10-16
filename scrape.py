@@ -236,8 +236,8 @@ def podium(d):
 
 
 def leaderboard(d):
-    """Everyone below the podium, split into two columns that each carry a header."""
-    rest = d["standings"][3:]
+    """Full standings, split into two columns that each carry a header."""
+    rest = d["standings"]
     half = (len(rest) + 1) // 2
     head = (
         '<div class="board-head" aria-hidden="true"><span>#</span><span>Player</span><span>Move</span>'
@@ -251,7 +251,7 @@ def leaderboard(d):
         for s in chunk:
             title = "Tribe: " + ", ".join(s["picks"]) + f' · MVP: {s["mvp"]}'
             rows.append(
-                f'<li title="{e(title)}"><span class="rk">{s["rank"]}</span><span class="nm">{e(s["name"])}</span>'
+                f'<li title="{e(title)}"><span class="rk{" top" if s["rank"] <= 3 else ""}">{s["rank"]}</span><span class="nm">{e(s["name"])}</span>'
                 f'{move_badge(s["move"])}<span class="ep">+{s["last"]}</span><span class="tot">{s["total"]}</span></li>'
             )
         cols.append(f'<div>{head}<ol class="board">{"".join(rows)}</ol></div>')
