@@ -99,9 +99,11 @@ def tribe_grid(players, castaways, points, label):
                 cells.append('<td class="off"></td>')
                 continue
             v = points.get(c)
-            cls = "mvp" if c == p["mvp"] else "on"
-            title = f"{p['name']}: {c}" + (" (MVP)" if c == p["mvp"] else "")
-            cells.append(f'<td class="{cls}" title="{e(title)}">{"–" if v is None else v}</td>')
+            cls = "gone" if v is None else "on"
+            if c == p["mvp"]:
+                cls += " mvp"
+            title = f"{p['name']}: {c}" + (" (MVP)" if c == p["mvp"] else "") + (" – not listed" if v is None else "")
+            cells.append(f'<td class="{cls}" title="{e(title)}">{"" if v is None else v}</td>')
         body.append(f'<tr><th class="name">{e(c)}</th>{"".join(cells)}</tr>')
     tot = "".join(f'<td class="gtotal">{totals[p["name"]]}</td>' for p in players)
     rank = "".join(f'<td class="grank">{ranked.index(totals[p["name"]]) + 1}</td>' for p in players)
