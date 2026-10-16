@@ -5,40 +5,72 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Survivor 51 Fantasy Points</title>
 <style>
-  :root { --bg:#faf7f2; --fg:#1f1b16; --muted:#6b6258; --line:#e4ddd2; --head:#2b2420; --headfg:#f5efe6; --accent:#c2410c; --zebra:#f3eee6; --out:#b5aca0; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#171411; --fg:#ede6dc; --muted:#a0968a; --line:#332c26; --head:#2a231e; --headfg:#f5efe6; --accent:#fb923c; --zebra:#1e1a16; --out:#5c544b; } }
+  :root { --bg:#faf7f2; --fg:#1f1b16; --muted:#6b6258; --line:#e4ddd2; --head:#2b2420; --headfg:#f5efe6; --accent:#c2410c; --zebra:#f3eee6; --out:#b5aca0; --btn:#efe8dd; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#171411; --fg:#ede6dc; --muted:#a0968a; --line:#332c26; --head:#2a231e; --headfg:#f5efe6; --accent:#fb923c; --zebra:#1e1a16; --out:#5c544b; --btn:#2a241f; } }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif; }
-  main { max-width:1100px; margin:0 auto; padding:24px 16px 48px; }
+  main { max-width:1400px; margin:0 auto; padding:24px 16px 48px; }
   h1 { font-size:1.6rem; margin:0 0 4px; }
-  p.meta { color:var(--muted); margin:0 0 20px; font-size:.9rem; }
+  h2 { font-size:1.2rem; margin:36px 0 6px; }
+  p.meta, p.note { color:var(--muted); margin:0 0 14px; font-size:.9rem; }
   a { color:var(--accent); }
-  .wrap { overflow-x:auto; border:1px solid var(--line); border-radius:8px; }
-  table { border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
-  th, td { padding:8px 12px; border-bottom:1px solid var(--line); white-space:nowrap; }
-  th { background:var(--head); color:var(--headfg); text-align:left; cursor:pointer; user-select:none; position:sticky; top:0; }
-  th:hover { text-decoration:underline; }
-  tbody tr:nth-child(even) { background:var(--zebra); }
+  nav { display:flex; gap:16px; flex-wrap:wrap; margin:0 0 8px; font-size:.95rem; }
+  .wrap { overflow:auto; border:1px solid var(--line); border-radius:8px; max-height:85vh; }
+  table { border-collapse:collapse; font-variant-numeric:tabular-nums; }
+  th, td { white-space:nowrap; }
+
+  /* Castaway table */
+  #t { width:100%; }
+  #t th, #t td { padding:8px 12px; border-bottom:1px solid var(--line); }
+  #t th { background:var(--head); color:var(--headfg); text-align:left; cursor:pointer; user-select:none; position:sticky; top:0; }
+  #t th:hover { text-decoration:underline; }
+  #t tbody tr { background:var(--bg); }
+  #t tbody tr:nth-child(even) { background:var(--zebra); }
+  #t .name { font-weight:600; position:sticky; left:0; background:inherit; }
   .num { text-align:right; }
-  .name { font-weight:600; position:sticky; left:0; background:inherit; }
-  tbody tr { background:var(--bg); }
   .rank { color:var(--muted); width:1%; }
   .total { font-weight:700; color:var(--accent); }
   .out { color:var(--out); }
+
+  /* Spreadsheet-style tribe grid: keeps the sheet's black / white / yellow in both themes */
+  .grid { font-size:13px; }
+  .grid th, .grid td { padding:4px 8px; border:1px solid #d4d4d4; text-align:center; min-width:52px; }
+  .grid thead th { position:sticky; top:0; z-index:2; background:var(--head); color:var(--headfg); font-weight:600; }
+  .grid .name { position:sticky; left:0; z-index:1; text-align:left; background:var(--bg); color:var(--fg); font-weight:600; }
+  .grid thead .name { z-index:3; background:var(--head); color:var(--headfg); }
+  .grid td.off { background:#000; border-color:#000; }
+  .grid td.on { background:#fff; color:#111; }
+  .grid td.mvp { background:#fdf254; color:#111; font-weight:700; }
+  .grid tfoot th, .grid tfoot td { background:var(--zebra); color:var(--fg); font-weight:700; }
+  .grid tfoot tr:first-child > * { border-top:2px solid var(--fg); }
+  .grid td.gtotal { color:var(--accent); }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:.85rem; color:var(--muted); margin:0 0 10px; }
+  .legend span::before { content:""; display:inline-block; width:14px; height:14px; margin-right:6px; vertical-align:-2px; border:1px solid #999; }
+  .legend .l-on::before { background:#fff; } .legend .l-mvp::before { background:#fdf254; } .legend .l-off::before { background:#000; }
+
+  .tabs { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 10px; }
+  .tabs button { font:inherit; padding:6px 12px; border-radius:6px; border:1px solid var(--line); background:var(--btn); color:var(--fg); cursor:pointer; }
+  .tabs button[aria-pressed="true"] { background:var(--accent); border-color:var(--accent); color:#fff; }
 </style>
 </head>
 <body>
 <main>
-  <h1>Survivor 51 Fantasy Tribe — Points by Episode</h1>
-  <p class="meta">Source: <a href="{{SOURCE}}">Global TV Fantasy Tribe results</a> · Last updated {{UPDATED}} · Click a column header to sort. “–” means the castaway wasn't listed that episode.</p>
-  <div class="wrap">
-    <table id="t">
-      <thead><tr><th class="num" data-sort="num">#</th><th data-sort="text">Survivor</th>{{HEAD}}<th class="num" data-sort="num">Total Points</th></tr></thead>
-      <tbody>
-{{BODY}}
-      </tbody>
-    </table>
-  </div>
+  <h1>Survivor 51 Fantasy Tribe</h1>
+  <p class="meta">Source: <a href="{{SOURCE}}">Global TV Fantasy Tribe results</a> · Last updated {{UPDATED}}</p>
+  <nav><a href="#overall">Overall standings</a><a href="#episodes">By episode</a><a href="#castaways">Castaway points</a></nav>
+  <div class="legend"><span class="l-on">On tribe</span><span class="l-mvp">MVP pick</span><span class="l-off">Not on tribe (no points)</span><span>– = castaway not listed that episode</span></div>
+
+  <h2 id="overall">Overall points</h2>
+  <p class="note">Each cell is the points that castaway has earned all season. The total row is what each player's tribe has scored.</p>
+  <div class="wrap">{{OVERALL}}</div>
+
+  <h2 id="episodes">Points by episode</h2>
+  <div class="tabs" role="group" aria-label="Episode">{{EP_BUTTONS}}</div>
+  <div class="wrap">{{EP_TABLES}}</div>
+
+  <h2 id="castaways">Castaway points</h2>
+  <p class="note">Click a column header to sort.</p>
+  <div class="wrap">{{CASTAWAYS}}</div>
 </main>
 <script>
   const t = document.getElementById('t');
@@ -52,6 +84,10 @@
       rows.forEach(r => t.tBodies[0].appendChild(r));
     });
   });
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    document.querySelectorAll('.ep').forEach(d => d.hidden = d.dataset.ep !== b.dataset.ep);
+  }));
 </script>
 </body>
 </html>

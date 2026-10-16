@@ -1,0 +1,474 @@
+{
+ "castaway_order": [
+  "Alexis",
+  "An",
+  "Ana",
+  "Brady",
+  "Carter",
+  "Cristian",
+  "Devin",
+  "Eric",
+  "Jelly",
+  "Jenna",
+  "Kilby",
+  "Kristin",
+  "Lewis",
+  "Linnea",
+  "Maggie",
+  "Mike",
+  "Ori",
+  "Patt",
+  "Rob",
+  "Sharonda"
+ ],
+ "players": [
+  {
+   "name": "Adam",
+   "picks": [
+    "Alexis",
+    "Carter",
+    "Devin",
+    "Eric",
+    "Jelly",
+    "Kilby",
+    "Patt",
+    "Sharonda"
+   ],
+   "mvp": "Devin"
+  },
+  {
+   "name": "Amanda",
+   "picks": [
+    "Brady",
+    "Carter",
+    "Kilby",
+    "Kristin",
+    "Lewis",
+    "Ori",
+    "Patt",
+    "Sharonda"
+   ],
+   "mvp": "Brady"
+  },
+  {
+   "name": "Ashley",
+   "picks": [
+    "Brady",
+    "Carter",
+    "Kilby",
+    "Kristin",
+    "Mike",
+    "Ori",
+    "Patt",
+    "Sharonda"
+   ],
+   "mvp": "Sharonda"
+  },
+  {
+   "name": "Barrie",
+   "picks": [
+    "Alexis",
+    "Carter",
+    "Cristian",
+    "Jelly",
+    "Jenna",
+    "Kilby",
+    "Mike",
+    "Sharonda"
+   ],
+   "mvp": "Kilby"
+  },
+  {
+   "name": "BenS",
+   "picks": [
+    "Ana",
+    "Brady",
+    "Carter",
+    "Jenna",
+    "Kilby",
+    "Kristin",
+    "Mike",
+    "Sharonda"
+   ],
+   "mvp": "Jenna"
+  },
+  {
+   "name": "BenK",
+   "picks": [
+    "Alexis",
+    "Carter",
+    "Jenna",
+    "Lewis",
+    "Maggie",
+    "Mike",
+    "Ori",
+    "Sharonda"
+   ],
+   "mvp": "Lewis"
+  },
+  {
+   "name": "ChelseaB",
+   "picks": [
+    "Carter",
+    "Devin",
+    "Jelly",
+    "Kilby",
+    "Kristin",
+    "Linnea",
+    "Ori",
+    "Patt"
+   ],
+   "mvp": "Ori"
+  },
+  {
+   "name": "ChelseaL",
+   "picks": [
+    "Ana",
+    "Devin",
+    "Eric",
+    "Jelly",
+    "Jenna",
+    "Kristin",
+    "Mike",
+    "Ori"
+   ],
+   "mvp": "Jenna"
+  },
+  {
+   "name": "Claudette",
+   "picks": [
+    "Carter",
+    "Devin",
+    "Jelly",
+    "Jenna",
+    "Kilby",
+    "Kristin",
+    "Linnea",
+    "Sharonda"
+   ],
+   "mvp": "Kristin"
+  },
+  {
+   "name": "Cynthia",
+   "picks": [
+    "Ana",
+    "Brady",
+    "Carter",
+    "Devin",
+    "Kilby",
+    "Maggie",
+    "Ori",
+    "Sharonda"
+   ],
+   "mvp": "Devin"
+  },
+  {
+   "name": "Dan",
+   "picks": [
+    "Alexis",
+    "Carter",
+    "Jelly",
+    "Jenna",
+    "Kristin",
+    "Mike",
+    "Ori",
+    "Patt"
+   ],
+   "mvp": "Jenna"
+  },
+  {
+   "name": "Danielle",
+   "picks": [
+    "Alexis",
+    "Devin",
+    "Kilby",
+    "Kristin",
+    "Linnea",
+    "Maggie",
+    "Patt",
+    "Sharonda"
+   ],
+   "mvp": "Devin"
+  },
+  {
+   "name": "Dianna",
+   "picks": [
+    "Brady",
+    "Jelly",
+    "Kristin",
+    "Linnea",
+    "Maggie",
+    "Mike",
+    "Ori",
+    "Rob"
+   ],
+   "mvp": "Kristin"
+  },
+  {
+   "name": "Debbie",
+   "picks": [
+    "Alexis",
+    "Brady",
+    "Cristian",
+    "Devin",
+    "Jelly",
+    "Mike",
+    "Ori",
+    "Sharonda"
+   ],
+   "mvp": "Jelly"
+  },
+  {
+   "name": "Gerry",
+   "picks": [
+    "Kilby",
+    "Kristin",
+    "Lewis",
+    "Maggie",
+    "Ori",
+    "Patt",
+    "Rob",
+    "Sharonda"
+   ],
+   "mvp": "Kristin"
+  },
+  {
+   "name": "Harrison",
+   "picks": [
+    "Alexis",
+    "An",
+    "Devin",
+    "Kilby",
+    "Lewis",
+    "Linnea",
+    "Ori",
+    "Sharonda"
+   ],
+   "mvp": "Lewis"
+  },
+  {
+   "name": "Jamie",
+   "picks": [
+    "Jelly",
+    "Jenna",
+    "Kristin",
+    "Mike",
+    "Ori",
+    "Patt",
+    "Rob",
+    "Sharonda"
+   ],
+   "mvp": "Sharonda"
+  },
+  {
+   "name": "JeanLuc",
+   "picks": [
+    "Ana",
+    "Carter",
+    "Jelly",
+    "Jenna",
+    "Kilby",
+    "Kristin",
+    "Mike",
+    "Sharonda"
+   ],
+   "mvp": "Kristin"
+  },
+  {
+   "name": "Jeff",
+   "picks": [
+    "Ana",
+    "Jelly",
+    "Kilby",
+    "Kristin",
+    "Lewis",
+    "Mike",
+    "Ori",
+    "Sharonda"
+   ],
+   "mvp": "Kilby"
+  },
+  {
+   "name": "Katie",
+   "picks": [
+    "Brady",
+    "Carter",
+    "Jelly",
+    "Kristin",
+    "Lewis",
+    "Ori",
+    "Patt",
+    "Sharonda"
+   ],
+   "mvp": "Carter"
+  },
+  {
+   "name": "Kim",
+   "picks": [
+    "Alexis",
+    "An",
+    "Jelly",
+    "Kristin",
+    "Lewis",
+    "Mike",
+    "Ori",
+    "Rob"
+   ],
+   "mvp": "Lewis"
+  },
+  {
+   "name": "Larry",
+   "picks": [
+    "Ana",
+    "Jenna",
+    "Kristin",
+    "Lewis",
+    "Maggie",
+    "Ori",
+    "Patt",
+    "Rob"
+   ],
+   "mvp": "Kristin"
+  },
+  {
+   "name": "Marcia",
+   "picks": [
+    "Carter",
+    "Cristian",
+    "Devin",
+    "Jenna",
+    "Kristin",
+    "Mike",
+    "Ori",
+    "Patt"
+   ],
+   "mvp": "Jenna"
+  },
+  {
+   "name": "Marina",
+   "picks": [
+    "Carter",
+    "Devin",
+    "Jelly",
+    "Kilby",
+    "Kristin",
+    "Linnea",
+    "Patt",
+    "Rob"
+   ],
+   "mvp": "Kristin"
+  },
+  {
+   "name": "Marisa",
+   "picks": [
+    "Alexis",
+    "An",
+    "Brady",
+    "Jelly",
+    "Kristin",
+    "Lewis",
+    "Ori",
+    "Rob"
+   ],
+   "mvp": "Kristin"
+  },
+  {
+   "name": "Matt",
+   "picks": [
+    "An",
+    "Ana",
+    "Kilby",
+    "Mike",
+    "Ori",
+    "Patt",
+    "Rob",
+    "Sharonda"
+   ],
+   "mvp": "Patt"
+  },
+  {
+   "name": "Mike",
+   "picks": [
+    "Carter",
+    "Cristian",
+    "Devin",
+    "Kilby",
+    "Linnea",
+    "Maggie",
+    "Patt",
+    "Rob"
+   ],
+   "mvp": "Rob"
+  },
+  {
+   "name": "Melanie",
+   "picks": [
+    "Alexis",
+    "Jenna",
+    "Kilby",
+    "Kristin",
+    "Mike",
+    "Patt",
+    "Rob",
+    "Sharonda"
+   ],
+   "mvp": "Alexis"
+  },
+  {
+   "name": "Monica",
+   "picks": [
+    "Ana",
+    "Cristian",
+    "Devin",
+    "Jelly",
+    "Kilby",
+    "Lewis",
+    "Linnea",
+    "Ori"
+   ],
+   "mvp": "Devin"
+  },
+  {
+   "name": "Ryan",
+   "picks": [
+    "Alexis",
+    "Brady",
+    "Devin",
+    "Jenna",
+    "Kristin",
+    "Linnea",
+    "Ori",
+    "Patt"
+   ],
+   "mvp": "Kristin"
+  },
+  {
+   "name": "Shelby",
+   "picks": [
+    "An",
+    "Carter",
+    "Jelly",
+    "Jenna",
+    "Linnea",
+    "Mike",
+    "Ori",
+    "Sharonda"
+   ],
+   "mvp": "Sharonda"
+  },
+  {
+   "name": "Tony",
+   "picks": [
+    "Alexis",
+    "Carter",
+    "Devin",
+    "Jelly",
+    "Kilby",
+    "Linnea",
+    "Patt",
+    "Rob"
+   ],
+   "mvp": "Patt"
+  }
+ ]
+}

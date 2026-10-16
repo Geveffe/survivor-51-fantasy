@@ -62,7 +62,7 @@ def build(episodes):
     return eps, rows
 
 
-def render(eps, rows, updated):
+def castaway_table(eps, rows):
     e = html.escape
     head = "".join(f'<th class="num" data-sort="num">Ep {n}</th>' for n in eps)
     body = []
@@ -75,10 +75,66 @@ def render(eps, rows, updated):
             f'<tr><td class="num rank">{i}</td><td class="name">{e(r["name"])}</td>{cells}'
             f'<td class="num total">{r["total"]}</td></tr>'
         )
+    return (
+        '<table id="t"><thead><tr><th class="num" data-sort="num">#</th><th data-sort="text">Survivor</th>'
+        f'{head}<th class="num" data-sort="num">Total Points</th></tr></thead><tbody>\n'
+        + "\n".join(body) + "\n</tbody></table>"
+    )
+
+
+def tribe_grid(players, castaways, points, label):
+    """Spreadsheet-style grid: rows = castaways, columns = fantasy players.
+
+    points: {castaway: int or None}. Black = not on that player's tribe, yellow = MVP.
+    """
+    e = html.escape
+    totals = {p["name"]: sum(points.get(c) or 0 for c in p["picks"]) for p in players}
+    ranked = sorted(totals.values(), reverse=True)
+    head = "".join(f"<th>{e(p['name'])}</th>" for p in players)
+    body = []
+    for c in castaways:
+        cells = []
+        for p in players:
+            if c not in p["picks"]:
+                cells.append('<td class="off"></td>')
+                continue
+            v = points.get(c)
+            cls = "mvp" if c == p["mvp"] else "on"
+            title = f"{p['name']}: {c}" + (" (MVP)" if c == p["mvp"] else "")
+            cells.append(f'<td class="{cls}" title="{e(title)}">{"–" if v is None else v}</td>')
+        body.append(f'<tr><th class="name">{e(c)}</th>{"".join(cells)}</tr>')
+    tot = "".join(f'<td class="gtotal">{totals[p["name"]]}</td>' for p in players)
+    rank = "".join(f'<td class="grank">{ranked.index(totals[p["name"]]) + 1}</td>' for p in players)
+    return (
+        f'<table class="grid" aria-label="{e(label)}"><thead><tr><th class="name">Castaway</th>{head}</tr></thead>'
+        f'<tbody>{"".join(body)}</tbody>'
+        f'<tfoot><tr><th class="name">{e(label)} total</th>{tot}</tr><tr><th class="name">Rank</th>{rank}</tr></tfoot></table>'
+    )
+
+
+def render(episodes, eps, rows, picks, updated):
+    e = html.escape
+    players = picks["players"]
+    # Castaway row order follows the picks sheet; anyone new from the results goes at the end.
+    order = {c: i for i, c in enumerate(picks.get("castaway_order", []))}
+    picked = {c for p in players for c in p["picks"]}
+    castaways = sorted(picked | {r["name"] for r in rows}, key=lambda c: (order.get(c, len(order)), c))
+    overall = {r["name"]: r["total"] for r in rows}
+    ep_buttons = "".join(
+        f'<button type="button" data-ep="{n}" aria-pressed="{str(n == eps[-1]).lower()}">Episode {n}</button>'
+        for n in eps
+    )
+    ep_tables = "".join(
+        f'<div class="ep" data-ep="{n}"{"" if n == eps[-1] else " hidden"}>'
+        + tribe_grid(players, castaways, episodes[n], f"Episode {n}") + "</div>"
+        for n in eps
+    )
     tpl = (Path(__file__).parent / "template.html").read_text()
     return (
-        tpl.replace("{{HEAD}}", head)
-        .replace("{{BODY}}", "\n".join(body))
+        tpl.replace("{{OVERALL}}", tribe_grid(players, castaways, overall, "Overall"))
+        .replace("{{EP_BUTTONS}}", ep_buttons)
+        .replace("{{EP_TABLES}}", ep_tables)
+        .replace("{{CASTAWAYS}}", castaway_table(eps, rows))
         .replace("{{UPDATED}}", e(updated))
         .replace("{{SOURCE}}", e(URL + "#results"))
     )
@@ -90,9 +146,10 @@ def main():
     if not p.episodes:
         sys.exit("No episode results found - page layout may have changed.")
     eps, rows = build(p.episodes)
+    picks = json.loads(Path(__file__).with_name("picks.json").read_text())
     updated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "index.html").write_text(render(eps, rows, updated))
+    (OUT / "index.html").write_text(render(p.episodes, eps, rows, picks, updated))
     (OUT / "data.json").write_text(json.dumps(
         {"updated": updated, "source": URL, "episodes": {str(k): p.episodes[k] for k in eps}}, indent=2))
     print(f"Episodes {eps}; {len(rows)} castaways -> {OUT}/index.html")
