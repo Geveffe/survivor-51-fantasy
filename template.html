@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Survivor 51 Fantasy Points</title>
+<style>
+  :root { --bg:#faf7f2; --fg:#1f1b16; --muted:#6b6258; --line:#e4ddd2; --head:#2b2420; --headfg:#f5efe6; --accent:#c2410c; --zebra:#f3eee6; --out:#b5aca0; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#171411; --fg:#ede6dc; --muted:#a0968a; --line:#332c26; --head:#2a231e; --headfg:#f5efe6; --accent:#fb923c; --zebra:#1e1a16; --out:#5c544b; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width:1100px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:1.6rem; margin:0 0 4px; }
+  p.meta { color:var(--muted); margin:0 0 20px; font-size:.9rem; }
+  a { color:var(--accent); }
+  .wrap { overflow-x:auto; border:1px solid var(--line); border-radius:8px; }
+  table { border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
+  th, td { padding:8px 12px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th { background:var(--head); color:var(--headfg); text-align:left; cursor:pointer; user-select:none; position:sticky; top:0; }
+  th:hover { text-decoration:underline; }
+  tbody tr:nth-child(even) { background:var(--zebra); }
+  .num { text-align:right; }
+  .name { font-weight:600; position:sticky; left:0; background:inherit; }
+  tbody tr { background:var(--bg); }
+  .rank { color:var(--muted); width:1%; }
+  .total { font-weight:700; color:var(--accent); }
+  .out { color:var(--out); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Survivor 51 Fantasy Tribe — Points by Episode</h1>
+  <p class="meta">Source: <a href="{{SOURCE}}">Global TV Fantasy Tribe results</a> · Last updated {{UPDATED}} · Click a column header to sort. “–” means the castaway wasn't listed that episode.</p>
+  <div class="wrap">
+    <table id="t">
+      <thead><tr><th class="num" data-sort="num">#</th><th data-sort="text">Survivor</th>{{HEAD}}<th class="num" data-sort="num">Total Points</th></tr></thead>
+      <tbody>
+{{BODY}}
+      </tbody>
+    </table>
+  </div>
+</main>
+<script>
+  const t = document.getElementById('t');
+  t.querySelectorAll('th').forEach((th, i) => {
+    let asc = false;
+    th.addEventListener('click', () => {
+      asc = !asc;
+      const num = th.dataset.sort === 'num';
+      const val = r => { const s = r.cells[i].textContent; return num ? (parseFloat(s) || -Infinity) : s.toLowerCase(); };
+      const rows = [...t.tBodies[0].rows].sort((a, b) => (val(a) > val(b) ? 1 : val(a) < val(b) ? -1 : 0) * (asc ? 1 : -1));
+      rows.forEach(r => t.tBodies[0].appendChild(r));
+    });
+  });
+</script>
+</body>
+</html>
