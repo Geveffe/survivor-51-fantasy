@@ -144,7 +144,8 @@
   }
 
   function trigger(run) {
-    if (run.event === 'schedule') return '<span class="trig">Automatic</span>';
+    // The laptop scheduler dispatches runs with trigger=auto, which names them "Automatic refresh"
+    if (run.event === 'schedule' || run.display_title === 'Automatic refresh') return '<span class="trig">Automatic</span>';
     if (run.event === 'workflow_dispatch') return '<span class="trig manual">Manual</span>';
     return `<span class="trig">${esc(run.event)}</span>`;
   }
