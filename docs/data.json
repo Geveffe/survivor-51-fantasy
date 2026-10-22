@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-21 16:19 UTC",
+  "updated": "2026-10-22 20:19 UTC",
   "source": "https://www.globaltv.com/survivor-51-fantasy-tribe/",
   "episodes": {
     "2": {
@@ -63,6 +63,24 @@
       "Mike": 11,
       "Ori": 1,
       "Sharonda": 11
+    },
+    "5": {
+      "Alexis": 25,
+      "An": 11,
+      "Brady": 11,
+      "Carter": 11,
+      "Cristian": 1,
+      "Devin": 6,
+      "Eric": 1,
+      "Jelly": 6,
+      "Kilby": 11,
+      "Kristin": 11,
+      "Lewis": 26,
+      "Linnea": 25,
+      "Maggie": 21,
+      "Mike": 11,
+      "Ori": 1,
+      "Sharonda": 1
     }
   },
   "departures": {
@@ -85,6 +103,16 @@
     "4": [
       {
         "name": "Jenna",
+        "how": "voted out"
+      }
+    ],
+    "5": [
+      {
+        "name": "Alexis",
+        "how": "voted out"
+      },
+      {
+        "name": "Linnea",
         "how": "voted out"
       }
     ]
