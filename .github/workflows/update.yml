@@ -1,7 +1,12 @@
 name: Scrape results
+run-name: ${{ (github.event_name == 'schedule' || inputs.trigger == 'auto') && 'Automatic refresh' || 'Manual refresh' }}
 
 on:
   workflow_dispatch:
+    inputs:
+      trigger:
+        description: "auto when started by a scheduler, manual otherwise"
+        default: manual
   schedule:
     - cron: "0 */3 * * *"   # every 3 hours
 
