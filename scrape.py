@@ -15,6 +15,7 @@ import urllib.request
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 URL = "https://www.globaltv.com/survivor-51-fantasy-tribe/"
 OUT = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
@@ -387,7 +388,7 @@ def main():
         previous = {}
     departures = find_departures(p.episodes, p.images, previous)
     now = datetime.now(timezone.utc)
-    updated = now.strftime("%b %-d, %Y · %-I:%M %p UTC")
+    updated = now.astimezone(ZoneInfo("America/Toronto")).strftime("%b %-d, %Y · %-I:%M %p %Z")
     OUT.mkdir(parents=True, exist_ok=True)
     shutil.copytree(here / "static", OUT, dirs_exist_ok=True)
     (OUT / "index.html").write_text(render(d, departures, updated))
