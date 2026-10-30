@@ -54,6 +54,14 @@
     background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:10px 16px; font-size:14px;
     box-shadow:0 8px 24px rgba(0,0,0,.4); }
   .toast.err { border-color:rgba(239,107,90,.6); color:var(--down); }
+  dialog { max-width:min(420px, calc(100% - 32px)); background:var(--surface); color:var(--fg); border:1px solid var(--line);
+    border-radius:var(--radius); padding:24px; box-shadow:0 16px 48px rgba(0,0,0,.5); }
+  dialog::backdrop { background:rgba(0,0,0,.6); }
+  dialog h2 { font:700 22px/1.2 var(--display); margin:0 0 12px; }
+  dialog p { margin:0 0 12px; color:var(--muted); }
+  dialog b { color:var(--gold); }
+  dialog form { display:flex; justify-content:flex-end; margin-top:20px; }
+  dialog button { font-size:14px; padding:9px 20px; }
   .empty { color:var(--muted); padding:20px 14px; }
 </style>
 </head>
@@ -67,6 +75,12 @@
   <div class="notice" id="notice" hidden></div>
   <div class="panel" id="players"><p class="empty">Loading…</p></div>
   <div class="toast" id="toast" role="status" hidden></div>
+  <dialog id="sent" aria-labelledby="sent-title">
+    <h2 id="sent-title">📧 Check your email</h2>
+    <p id="sent-text"></p>
+    <p>Your pick <b>isn't saved yet</b>. Open that email and click the <b>Confirm</b> button in it to lock in your choice.</p>
+    <form method="dialog"><button class="primary" autofocus>Got it</button></form>
+  </dialog>
 </main>
 
 <script>
@@ -130,9 +144,11 @@
     control.disabled = true; label.textContent = 'Sending…';
     try {
       await call(params);
-      toast(done);
+      if (done) toast(done);
+      return true;
     } catch (err) {
       toast(err.message, true);
+      return false;
     } finally {
       control.disabled = false; label.textContent = text;
     }
@@ -145,12 +161,14 @@
     act(btn, btn, { action: 'email', player: p.name }, `Sent ${p.name} an email with their current merge pick.`);
   });
 
-  $('players').addEventListener('change', ev => {
+  $('players').addEventListener('change', async ev => {
     const sel = ev.target, p = players[sel.closest('.row').dataset.i], castaway = sel.value;
     if (!castaway) return;
     sel.selectedIndex = 0;
-    act(sel, sel.options[0], { action: 'choose', player: p.name, castaway },
-      `Email sent to ${p.name}. ${castaway} becomes their merge pick once they click the link in it.`);
+    if (await act(sel, sel.options[0], { action: 'choose', player: p.name, castaway })) {
+      $('sent-text').innerHTML = `We sent ${esc(p.name)} an email to confirm <b>${esc(castaway)}</b> as their merge pick.`;
+      $('sent').showModal();
+    }
   });
 
   // Arriving from a confirmation email: save the pick, then show the list as usual.
