@@ -28,13 +28,16 @@
   h1 { font:700 clamp(26px, 4vw, 36px)/1.1 var(--display); margin:0; letter-spacing:.02em; }
   .sub { color:var(--muted); margin:8px 0 20px; }
 
-  button, select { font:700 14px Inter, sans-serif; border-radius:999px; padding:8px 14px; cursor:pointer; border:1px solid transparent; }
+  button, select { font:700 13px Inter, sans-serif; border-radius:999px; padding:6px 12px; cursor:pointer; border:1px solid transparent; }
   .primary { background:var(--gold); color:#1c1a15; }
   .primary:hover { filter:brightness(1.08); }
   .ghost { background:none; color:var(--fg); border-color:var(--line); font-weight:600; }
   .ghost:hover { border-color:var(--muted); }
-  button:disabled { opacity:.6; cursor:default; filter:none; }
-  select { background:var(--bg); color:var(--fg); border-color:var(--line); font-weight:600; min-width:0; }
+  button:disabled, select:disabled { opacity:.6; cursor:default; filter:none; }
+  /* The pick dropdown looks like a button; choosing a castaway sends the email */
+  select.primary { appearance:none; -webkit-appearance:none; padding-right:26px; text-align:center;
+    background:var(--gold) url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%231c1a15'/></svg>") no-repeat right 11px center; }
+  option { background:var(--surface); color:var(--fg); }
 
   .notice { background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius); padding:16px; margin:0 0 16px; }
   .notice.ok { border-color:rgba(98,208,143,.45); }
@@ -42,17 +45,15 @@
   .notice b { color:var(--gold); }
 
   .panel { background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius); }
-  .row { padding:12px 14px; border-bottom:1px solid var(--line-soft); }
+  @media (max-width:480px) { .row { padding:6px 10px; } }
+  .row { display:flex; align-items:center; gap:8px; padding:6px 12px; border-bottom:1px solid var(--line-soft); }
   .row:last-child { border-bottom:0; }
-  .main { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; }
-  .name { flex:1 1 120px; font-weight:700; }
-  .saved { display:inline-block; margin-left:8px; font-size:12px; font-weight:700; color:var(--up); }
-  .actions { display:flex; gap:8px; }
-  .chooser { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-  .chooser select { flex:1 1 160px; }
-  .msg { font-size:14px; color:var(--muted); margin:8px 0 0; }
-  .msg:empty { display:none; }
-  .msg.err { color:var(--down); }
+  .name { flex:1; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .saved { margin-left:6px; font-size:12px; color:var(--up); }
+  .toast { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); width:max-content; max-width:calc(100% - 32px);
+    background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:10px 16px; font-size:14px;
+    box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .toast.err { border-color:rgba(239,107,90,.6); color:var(--down); }
   .empty { color:var(--muted); padding:20px 14px; }
 </style>
 </head>
@@ -65,6 +66,7 @@
 
   <div class="notice" id="notice" hidden></div>
   <div class="panel" id="players"><p class="empty">Loading…</p></div>
+  <div class="toast" id="toast" role="status" hidden></div>
 </main>
 
 <script>
@@ -88,25 +90,19 @@
   }
 
   let players = [];
+  // Phones don't have room for the full button labels
+  const narrow = matchMedia('(max-width: 480px)');
+  narrow.addEventListener('change', () => render());
   function render() {
+    const label = narrow.matches ? ' Pick' : ' Merge Pick';
     $('players').innerHTML = players.map((p, i) => `
       <div class="row" data-i="${i}">
-        <div class="main">
-          <span class="name">${esc(p.name)}${p.hasPick ? '<span class="saved">✓ Pick saved</span>' : ''}</span>
-          <span class="actions">
-            <button class="primary" data-act="open">${p.hasPick ? 'Change' : 'Choose'} Merge Pick</button>
-            <button class="ghost" data-act="email">Email Merge Pick</button>
-          </span>
-        </div>
-        <form class="chooser" hidden>
-          <select required aria-label="Merge pick for ${esc(p.name)}">
-            <option value="">Choose a castaway…</option>
-            ${p.eligible.map(c => `<option>${esc(c)}</option>`).join('')}
-          </select>
-          <button class="primary" type="submit">Email Me a Confirmation Link</button>
-          <button class="ghost" type="button" data-act="close">Cancel</button>
-        </form>
-        <p class="msg" role="status"></p>
+        <span class="name">${esc(p.name)}${p.hasPick ? '<span class="saved" title="Pick saved">✓</span>' : ''}</span>
+        <select class="primary" aria-label="${p.hasPick ? 'Change' : 'Choose'} merge pick for ${esc(p.name)}">
+          <option value="">${p.hasPick ? 'Change' : 'Choose'}${label}</option>
+          ${p.eligible.map(c => `<option>${esc(c)}</option>`).join('')}
+        </select>
+        <button class="ghost" type="button">Email${label}</button>
       </div>`).join('') || '<p class="empty">No players found.</p>';
   }
 
@@ -119,41 +115,42 @@
     }
   }
 
-  // Run an action for one player, showing progress and the outcome under their name
-  async function act(row, btn, params, done) {
-    const msg = row.querySelector('.msg'), label = btn.textContent;
-    btn.disabled = true; btn.textContent = 'Sending…';
-    msg.textContent = ''; msg.classList.remove('err');
+  let toastTimer = null;
+  function toast(text, isErr = false) {
+    const t = $('toast');
+    t.textContent = text; t.classList.toggle('err', isErr); t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, 6e3);
+  }
+
+  // Run an action for one player, showing "Sending…" on the control and the outcome in a toast.
+  // `label` is the element whose text changes: the button itself, or the dropdown's first option.
+  async function act(control, label, params, done) {
+    const text = label.textContent;
+    control.disabled = true; label.textContent = 'Sending…';
     try {
       await call(params);
-      msg.textContent = done;
-      return true;
+      toast(done);
     } catch (err) {
-      msg.textContent = err.message; msg.classList.add('err');
-      return false;
+      toast(err.message, true);
     } finally {
-      btn.disabled = false; btn.textContent = label;
+      control.disabled = false; label.textContent = text;
     }
   }
 
   $('players').addEventListener('click', ev => {
-    const btn = ev.target.closest('button[data-act]');
+    const btn = ev.target.closest('button');
     if (!btn) return;
-    const row = btn.closest('.row'), p = players[row.dataset.i], form = row.querySelector('.chooser');
-    if (btn.dataset.act === 'open') { form.hidden = false; form.querySelector('select').focus(); }
-    if (btn.dataset.act === 'close') form.hidden = true;
-    if (btn.dataset.act === 'email') {
-      act(row, btn, { action: 'email', player: p.name }, `Sent ${p.name} an email with their current merge pick.`);
-    }
+    const p = players[btn.closest('.row').dataset.i];
+    act(btn, btn, { action: 'email', player: p.name }, `Sent ${p.name} an email with their current merge pick.`);
   });
 
-  $('players').addEventListener('submit', async ev => {
-    ev.preventDefault();
-    const form = ev.target, row = form.closest('.row'), p = players[row.dataset.i];
-    const castaway = form.querySelector('select').value;
-    const sent = await act(row, form.querySelector('button[type=submit]'), { action: 'choose', player: p.name, castaway },
+  $('players').addEventListener('change', ev => {
+    const sel = ev.target, p = players[sel.closest('.row').dataset.i], castaway = sel.value;
+    if (!castaway) return;
+    sel.selectedIndex = 0;
+    act(sel, sel.options[0], { action: 'choose', player: p.name, castaway },
       `Email sent to ${p.name}. ${castaway} becomes their merge pick once they click the link in it.`);
-    if (sent) form.hidden = true;
   });
 
   // Arriving from a confirmation email: save the pick, then show the list as usual.
