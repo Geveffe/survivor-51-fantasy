@@ -45,11 +45,16 @@
   .notice b { color:var(--gold); }
 
   .panel { background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius); }
-  @media (max-width:480px) { .row { padding:6px 10px; } }
+  /* Shrink the list to its widest row so short names don't leave a wide gap */
+  .panel { width:fit-content; max-width:100%; overflow:hidden; }
   .row { display:flex; align-items:center; gap:8px; padding:6px 12px; border-bottom:1px solid var(--line-soft); }
   .row:last-child { border-bottom:0; }
-  .name { flex:1; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .saved { margin-left:6px; font-size:12px; color:var(--up); }
+  .name { flex:0 0 6.5em; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .row.picked { background:rgba(98,208,143,.12); }
+  .row.picked .name { color:var(--up); }
+  .picked-btn { background:none; color:var(--up); border-color:rgba(98,208,143,.55); }
+  .picked-btn:hover { border-color:var(--up); }
+  @media (max-width:480px) { .row { padding:6px 10px; } .name { flex-basis:5.5em; } }
   .toast { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); width:max-content; max-width:calc(100% - 32px);
     background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:10px 16px; font-size:14px;
     box-shadow:0 8px 24px rgba(0,0,0,.4); }
@@ -109,14 +114,15 @@
   narrow.addEventListener('change', () => render());
   function render() {
     const label = narrow.matches ? ' Pick' : ' Merge Pick';
+    const emailLabel = narrow.matches ? 'Pick Made – Email' : 'Pick Made – Email Confirmation';
     $('players').innerHTML = players.map((p, i) => `
-      <div class="row" data-i="${i}">
-        <span class="name">${esc(p.name)}${p.hasPick ? '<span class="saved" title="Pick saved">✓</span>' : ''}</span>
+      <div class="row${p.hasPick ? ' picked' : ''}" data-i="${i}">
+        <span class="name">${esc(p.name)}</span>
         <select class="primary" aria-label="${p.hasPick ? 'Change' : 'Choose'} merge pick for ${esc(p.name)}">
           <option value="">${p.hasPick ? 'Change' : 'Choose'}${label}</option>
           ${p.eligible.map(c => `<option>${esc(c)}</option>`).join('')}
         </select>
-        <button class="ghost" type="button">Email${label}</button>
+        ${p.hasPick ? `<button class="picked-btn" type="button" aria-label="Email ${esc(p.name)} their merge pick">${emailLabel}</button>` : ''}
       </div>`).join('') || '<p class="empty">No players found.</p>';
   }
 
