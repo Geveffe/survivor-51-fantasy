@@ -54,6 +54,7 @@
   .row.picked .name { color:var(--up); }
   .picked-btn { background:none; color:var(--up); border-color:rgba(98,208,143,.55); }
   .picked-btn:hover { border-color:var(--up); }
+  .pending { font:600 13px Inter, sans-serif; color:var(--gold); border:1px solid rgba(233,185,73,.5); border-radius:999px; padding:6px 12px; white-space:nowrap; }
   @media (max-width:480px) { .row { padding:6px 10px; } .name { flex-basis:5.5em; } }
   .toast { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); width:max-content; max-width:calc(100% - 32px);
     background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:10px 16px; font-size:14px;
@@ -115,6 +116,7 @@
   function render() {
     const label = narrow.matches ? ' Pick' : ' Merge Pick';
     const emailLabel = narrow.matches ? 'Pick Made – Email' : 'Pick Made – Email Confirmation';
+    const pendingLabel = narrow.matches ? '⚠️ Confirm via email' : '⚠️ Pick made – confirm it via your email';
     $('players').innerHTML = players.map((p, i) => `
       <div class="row${p.hasPick ? ' picked' : ''}" data-i="${i}">
         <span class="name">${esc(p.name)}</span>
@@ -122,7 +124,8 @@
           <option value="">${p.hasPick ? 'Change' : 'Choose'}${label}</option>
           ${p.eligible.map(c => `<option>${esc(c)}</option>`).join('')}
         </select>
-        ${p.hasPick ? `<button class="picked-btn" type="button" aria-label="Email ${esc(p.name)} their merge pick">${emailLabel}</button>` : ''}
+        ${p.hasPick ? `<button class="picked-btn" type="button" aria-label="Email ${esc(p.name)} their merge pick">${emailLabel}</button>`
+          : p.hasPending ? `<span class="pending" role="note">${pendingLabel}</span>` : ''}
       </div>`).join('') || '<p class="empty">No players found.</p>';
   }
 
@@ -172,6 +175,8 @@
     if (!castaway) return;
     sel.selectedIndex = 0;
     if (await act(sel, sel.options[0], { action: 'choose', player: p.name, castaway })) {
+      p.hasPending = true;
+      render();
       $('sent-text').innerHTML = `We sent ${esc(p.name)} an email to confirm <b>${esc(castaway)}</b> as their merge pick.`;
       $('sent').showModal();
     }
@@ -186,7 +191,8 @@
     notice('Confirming your merge pick…', '');
     try {
       const r = await call({ action: 'commit', player: q.get('player'), token: q.get('confirm') });
-      notice(`${r.already ? 'Already confirmed' : 'Confirmed'}: <b>${esc(r.castaway)}</b> is ${esc(r.player)}'s merge pick.`, 'ok');
+      const mail = r.already ? '' : r.emailed ? ' We emailed you a confirmation.' : " We couldn't send a confirmation email, but your pick is saved.";
+      notice(`${r.already ? 'Already confirmed' : 'Confirmed'}: <b>${esc(r.castaway)}</b> is ${esc(r.player)}'s merge pick.${mail}`, 'ok');
     } catch (err) {
       notice(esc(err.message), 'err');
     }

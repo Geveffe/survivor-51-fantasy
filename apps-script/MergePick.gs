@@ -64,7 +64,8 @@ function status() {
   const lg = league();
   return {
     ok: true,
-    players: lg.players.map(pl => ({ name: pl.name, eligible: eligible(pl), hasPick: !!read('pick:' + pl.name) })),
+    players: lg.players.map(pl => ({ name: pl.name, eligible: eligible(pl),
+      hasPick: !!read('pick:' + pl.name), hasPending: !!read('pending:' + pl.name) })),
   };
 }
 
@@ -75,8 +76,9 @@ function throttle(pl) {
   cache.put(key, '1', 60);
 }
 
-function send(pl, subject, html) {
-  throttle(pl);
+// Pass throttled = false for emails only a confirmation link can trigger.
+function send(pl, subject, html, throttled = true) {
+  if (throttled) throttle(pl);
   MailApp.sendEmail({
     to: EMAILS[pl.name],
     name: 'Survivor 51 Fantasy',
@@ -116,6 +118,7 @@ function commit(player, token) {
   const pl = findPlayer(player);
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
+  let castaway;
   try {
     const pick = read('pick:' + pl.name), pending = read('pending:' + pl.name);
     if (pick && pick.token === token) return { ok: true, player: pl.name, castaway: pick.castaway, already: true };
@@ -123,10 +126,23 @@ function commit(player, token) {
       throw new Error('This link has expired. It may have been replaced by a newer choice; check for a more recent email.');
     }
     if (!eligible(pl).includes(pending.castaway)) throw new Error(`${pending.castaway} is no longer available as a merge pick.`);
+    castaway = pending.castaway;
     write('pick:' + pl.name, { castaway: pending.castaway, token, at: new Date().toISOString() });
     props().deleteProperty('pending:' + pl.name);
-    return { ok: true, player: pl.name, castaway: pending.castaway };
   } finally {
     lock.releaseLock();
   }
+  // Email the confirmed pick right away so the player knows it worked and the owner's Sent
+  // folder keeps a record. A mail failure doesn't undo the saved pick.
+  let emailed = true;
+  try {
+    send(pl, `Confirmed: ${castaway} is your merge pick`,
+      `<p>Hi ${pl.name},</p>
+       <p>Your Survivor 51 merge pick is confirmed as <b>${castaway}</b>.</p>
+       <p>Confirmed ${new Date().toUTCString()}.</p>
+       <p><a href="${SITE}merge.html">View or change your merge pick</a></p>`, false);
+  } catch (err) {
+    emailed = false;
+  }
+  return { ok: true, player: pl.name, castaway, emailed };
 }
