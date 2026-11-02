@@ -54,7 +54,8 @@
   .row.picked .name { color:var(--up); }
   .picked-btn { background:none; color:var(--up); border-color:rgba(98,208,143,.55); }
   .picked-btn:hover { border-color:var(--up); }
-  .pending { font:600 13px Inter, sans-serif; color:var(--gold); border:1px solid rgba(233,185,73,.5); border-radius:999px; padding:6px 12px; white-space:nowrap; }
+  /* Wraps instead of being cut off when the row is narrow */
+  .pending { min-width:0; font:600 13px/1.3 Inter, sans-serif; color:var(--gold); border:1px solid rgba(233,185,73,.5); border-radius:14px; padding:6px 12px; }
   @media (max-width:480px) { .row { padding:6px 10px; } .name { flex-basis:5.5em; } }
   .toast { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); width:max-content; max-width:calc(100% - 32px);
     background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:10px 16px; font-size:14px;
@@ -116,7 +117,7 @@
   function render() {
     const label = narrow.matches ? ' Pick' : ' Merge Pick';
     const emailLabel = narrow.matches ? 'Pick Made – Email' : 'Pick Made – Email Confirmation';
-    const pendingLabel = narrow.matches ? '⚠️ Confirm via email' : '⚠️ Pick made – confirm it via your email';
+    const pendingLabel = narrow.matches ? '⚠️ Confirm via email' : '⚠️ Pick made – confirm via email';
     $('players').innerHTML = players.map((p, i) => `
       <div class="row${p.hasPick ? ' picked' : ''}" data-i="${i}">
         <span class="name">${esc(p.name)}</span>
