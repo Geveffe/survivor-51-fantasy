@@ -72,8 +72,16 @@
   .empty { color:var(--muted); padding:20px 14px; }
   .lock { color:var(--muted); margin:-8px 0 20px; font-size:14px; }
   .lock b { color:var(--torch); }
-  .final { font-weight:700; color:var(--torch); }
-  .final.none { font-weight:500; color:var(--faint); }
+  .sub[hidden] + .lock { margin:12px 0 24px; }
+  /* After the lock: a card per pick, then everyone without one */
+  .pick-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:10px; }
+  .pick-card { background:linear-gradient(135deg, rgba(240,145,58,.16), rgba(233,185,73,.04) 70%), var(--surface);
+    border:1px solid rgba(240,145,58,.5); border-radius:var(--radius); padding:14px 16px; min-width:0; }
+  .pick-card .who { display:block; font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .pick-card .cast { display:block; font:700 22px/1.2 var(--display); margin-top:4px; overflow-wrap:anywhere; }
+  .none-head { font:700 16px/1.2 var(--display); color:var(--muted); margin:28px 0 10px; }
+  .none-list { display:flex; flex-wrap:wrap; gap:6px; }
+  .none-list span { font-size:13px; font-weight:600; color:var(--muted); background:var(--surface); border:1px solid var(--line-soft); border-radius:999px; padding:4px 11px; }
 </style>
 </head>
 <body>
@@ -121,11 +129,14 @@
   narrow.addEventListener('change', () => render());
   function render() {
     if (locked) {
-      $('players').innerHTML = players.map(p => `
-        <div class="row${p.pick ? ' picked' : ''}">
-          <span class="name">${esc(p.name)}</span>
-          ${p.pick ? `<span class="final">${esc(p.pick)}</span>` : '<span class="final none">No pick</span>'}
-        </div>`).join('') || '<p class="empty">No players found.</p>';
+      const made = players.filter(p => p.pick), none = players.filter(p => !p.pick);
+      $('players').className = '';
+      $('players').innerHTML = (made.length
+        ? `<div class="pick-grid">${made.map(p => `
+            <div class="pick-card"><span class="who">${esc(p.name)}</span><span class="cast">${esc(p.pick)}</span></div>`).join('')}</div>`
+        : '<p class="empty">Nobody made a merge pick.</p>')
+        + (none.length ? `<h2 class="none-head">No merge pick (${none.length})</h2>
+            <div class="none-list">${none.map(p => `<span>${esc(p.name)}</span>`).join('')}</div>` : '');
       return;
     }
     const label = narrow.matches ? ' Pick' : ' Merge Pick';
@@ -149,7 +160,7 @@
       players = r.players; locked = r.locked;
       const when = new Date(r.lockAt).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Toronto', timeZoneName: 'short' });
       $('lock').innerHTML = locked
-        ? `🔒 Merge picks <b>locked</b> ${esc(when)}. Here's everyone's pick.`
+        ? `🔒 Merge picks <b>locked</b> ${esc(when)}. They score from Episode 8 on.`
         : `Picks lock <b>${esc(when)}</b>. Unconfirmed picks won't count.`;
       $('lock').hidden = false;
       document.querySelector('.sub').hidden = locked;
