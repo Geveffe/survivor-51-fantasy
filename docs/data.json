@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-05 02:40 UTC",
+  "updated": "2026-11-05 02:49 UTC",
   "source": "https://www.globaltv.com/survivor-51-fantasy-tribe/",
   "episodes": {
     "2": {
@@ -138,9 +138,5 @@
         "how": "voted out"
       }
     ]
-  },
-  "merge": {
-    "Dan": "An",
-    "Jeff": "Cristian"
   }
 }
