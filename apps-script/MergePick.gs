@@ -9,7 +9,7 @@
  */
 const SITE = 'https://geveffe.github.io/survivor-51-fantasy/';
 const RAW = 'https://raw.githubusercontent.com/Geveffe/survivor-51-fantasy/main/';
-const LOCK_AT = new Date('2026-11-04T21:40:00-05:00');  // 9:40 PM Toronto time
+const LOCK_AT = new Date('2026-11-11T20:00:00-05:00');  // 8:00 PM Toronto time, Wed Nov 11
 
 const locked = () => new Date() >= LOCK_AT;
 function checkOpen() {
