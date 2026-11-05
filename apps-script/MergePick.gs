@@ -43,11 +43,13 @@ const read = key => JSON.parse(props().getProperty(key) || 'null');
 const write = (key, value) => props().setProperty(key, JSON.stringify(value));
 
 // Players' tribes from picks.json and who's still in the game from the site's data.json,
-// cached for a few minutes so each click doesn't refetch them.
+// cached for a few minutes so each click doesn't refetch them, and kept for the rest of the request.
+let leagueMemo = null;
 function league() {
+  if (leagueMemo) return leagueMemo;
   const cache = CacheService.getScriptCache();
   const hit = cache.get('league');
-  if (hit) return JSON.parse(hit);
+  if (hit) return (leagueMemo = JSON.parse(hit));
   const get = path => JSON.parse(UrlFetchApp.fetch(RAW + path).getContentText());
   const picks = get('picks.json'), data = get('docs/data.json');
   const last = String(Math.max(...Object.keys(data.episodes).map(Number)));
@@ -57,7 +59,7 @@ function league() {
     remaining: Object.keys(data.episodes[last]).filter(c => !gone.includes(c)),
   };
   cache.put('league', JSON.stringify(out), 300);
-  return out;
+  return (leagueMemo = out);
 }
 
 function findPlayer(name) {
@@ -70,8 +72,10 @@ function findPlayer(name) {
 const eligible = pl => league().remaining.filter(c => !pl.tribe.includes(c));
 
 // Once locked, everyone's confirmed pick is public; before that, only whether they have one.
+// All properties are read in one call; reading them one at a time made this slow.
 function status() {
-  const lg = league();
+  const lg = league(), all = props().getProperties();
+  const read = key => JSON.parse(all[key] || 'null');
   if (locked()) {
     return {
       ok: true, locked: true, lockAt: LOCK_AT.toISOString(),
