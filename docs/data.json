@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-05 21:19 UTC",
+  "updated": "2026-11-05 22:42 UTC",
   "source": "https://www.globaltv.com/survivor-51-fantasy-tribe/",
   "episodes": {
     "2": {
@@ -157,6 +157,468 @@
       {
         "name": "Brady",
         "how": "voted out"
+      }
+    ]
+  },
+  "merge_status": {
+    "ok": true,
+    "locked": false,
+    "lockAt": "2026-11-12T01:00:00.000Z",
+    "players": [
+      {
+        "name": "Adam",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Kristin",
+          "Lewis",
+          "Maggie",
+          "Mike"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Amanda",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Jelly",
+          "Maggie",
+          "Mike"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Ashley",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Jelly",
+          "Lewis",
+          "Maggie"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Barrie",
+        "eligible": [
+          "An",
+          "Devin",
+          "Eric",
+          "Kristin",
+          "Lewis",
+          "Maggie"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "BenS",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Jelly",
+          "Lewis",
+          "Maggie"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "BenK",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Jelly",
+          "Kilby",
+          "Kristin"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "ChelseaB",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Eric",
+          "Lewis",
+          "Maggie",
+          "Mike",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "ChelseaL",
+        "eligible": [
+          "An",
+          "Carter",
+          "Cristian",
+          "Kilby",
+          "Lewis",
+          "Maggie",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Claudette",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Eric",
+          "Lewis",
+          "Maggie",
+          "Mike"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Cynthia",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Eric",
+          "Jelly",
+          "Kristin",
+          "Lewis",
+          "Mike"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Dan",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Kilby",
+          "Lewis",
+          "Maggie",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Danielle",
+        "eligible": [
+          "An",
+          "Carter",
+          "Cristian",
+          "Eric",
+          "Jelly",
+          "Lewis",
+          "Mike"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Dianna",
+        "eligible": [
+          "An",
+          "Carter",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Kilby",
+          "Lewis",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Debbie",
+        "eligible": [
+          "An",
+          "Carter",
+          "Eric",
+          "Kilby",
+          "Kristin",
+          "Lewis",
+          "Maggie"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Gerry",
+        "eligible": [
+          "An",
+          "Carter",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Jelly",
+          "Mike"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Harrison",
+        "eligible": [
+          "Carter",
+          "Cristian",
+          "Eric",
+          "Jelly",
+          "Kristin",
+          "Maggie",
+          "Mike"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Jamie",
+        "eligible": [
+          "An",
+          "Carter",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Kilby",
+          "Lewis",
+          "Maggie"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "JeanLuc",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Lewis",
+          "Maggie"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Jeff",
+        "eligible": [
+          "An",
+          "Carter",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Maggie"
+        ],
+        "hasPick": true,
+        "hasPending": false
+      },
+      {
+        "name": "Katie",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Kilby",
+          "Maggie",
+          "Mike"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Kim",
+        "eligible": [
+          "Carter",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Kilby",
+          "Maggie",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Larry",
+        "eligible": [
+          "An",
+          "Carter",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Jelly",
+          "Kilby",
+          "Mike",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Marcia",
+        "eligible": [
+          "An",
+          "Eric",
+          "Jelly",
+          "Kilby",
+          "Lewis",
+          "Maggie",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Marina",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Eric",
+          "Lewis",
+          "Maggie",
+          "Mike",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Marisa",
+        "eligible": [
+          "Carter",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Kilby",
+          "Maggie",
+          "Mike",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Matt",
+        "eligible": [
+          "Carter",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Jelly",
+          "Kristin",
+          "Lewis",
+          "Maggie"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Mike",
+        "eligible": [
+          "An",
+          "Eric",
+          "Jelly",
+          "Kristin",
+          "Lewis",
+          "Mike",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Melanie",
+        "eligible": [
+          "An",
+          "Carter",
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Jelly",
+          "Lewis",
+          "Maggie"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Monica",
+        "eligible": [
+          "An",
+          "Carter",
+          "Eric",
+          "Kristin",
+          "Maggie",
+          "Mike",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Ryan",
+        "eligible": [
+          "An",
+          "Carter",
+          "Cristian",
+          "Eric",
+          "Jelly",
+          "Kilby",
+          "Lewis",
+          "Maggie",
+          "Mike",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Shelby",
+        "eligible": [
+          "Cristian",
+          "Devin",
+          "Eric",
+          "Kilby",
+          "Kristin",
+          "Lewis",
+          "Maggie"
+        ],
+        "hasPick": false,
+        "hasPending": false
+      },
+      {
+        "name": "Tony",
+        "eligible": [
+          "An",
+          "Cristian",
+          "Eric",
+          "Kristin",
+          "Lewis",
+          "Maggie",
+          "Mike",
+          "Sharonda"
+        ],
+        "hasPick": false,
+        "hasPending": false
       }
     ]
   }
