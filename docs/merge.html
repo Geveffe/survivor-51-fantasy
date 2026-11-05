@@ -123,14 +123,14 @@
     n.innerHTML = html; n.className = `notice ${kind}`; n.hidden = false;
   }
 
-  let players = [], locked = false;
+  let status = null, players = [], locked = false;
   // Phones don't have room for the full button labels
   const narrow = matchMedia('(max-width: 480px)');
   narrow.addEventListener('change', () => render());
   function render() {
+    $('players').className = locked ? '' : 'panel';
     if (locked) {
       const made = players.filter(p => p.pick), none = players.filter(p => !p.pick);
-      $('players').className = '';
       $('players').innerHTML = (made.length
         ? `<div class="pick-grid">${made.map(p => `
             <div class="pick-card"><span class="who">${esc(p.name)}</span><span class="cast">${esc(p.pick)}</span></div>`).join('')}</div>`
@@ -154,20 +154,48 @@
       </div>`).join('') || '<p class="empty">No players found.</p>';
   }
 
+  // Show the newest copy we have straight away (this browser's last live status, or the site's hourly
+  // snapshot in data.json), then quietly fetch the live status and redraw.
+  const CACHE = 'mergeStatus';
+  let shownAt = 0, changes = 0;
+  function offer(r, at) {
+    if (!r || at <= shownAt) return;
+    shownAt = at;
+    show(r);
+  }
+  function save() {
+    try { localStorage.setItem(CACHE, JSON.stringify({ at: Date.now(), status })); } catch (err) {}
+  }
+
   async function load() {
     try {
+      const c = JSON.parse(localStorage.getItem(CACHE));
+      if (c) offer(c.status, c.at);
+    } catch (err) {}
+    fetch('data.json', { cache: 'no-store' }).then(res => res.json())
+      .then(d => offer(d.merge_status, Date.parse(d.updated.replace(' ', 'T').replace(' UTC', 'Z'))))
+      .catch(() => {});
+    // Ignore a live status that was requested before the player changed something on this page.
+    const before = changes;
+    try {
       const r = await call({ action: 'status' });
-      players = r.players; locked = r.locked;
-      const when = new Date(r.lockAt).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Toronto', timeZoneName: 'short' });
-      $('lock').innerHTML = locked
-        ? `🔒 Merge picks <b>locked</b> ${esc(when)}. They score from Episode 8 on.`
-        : `Picks lock <b>${esc(when)}</b>. Unconfirmed picks won't count.`;
-      $('lock').hidden = false;
-      document.querySelector('.sub').hidden = locked;
-      render();
+      if (changes !== before) return;
+      offer(r, Date.now());
+      save();
     } catch (err) {
-      $('players').innerHTML = `<p class="empty">Couldn't load players. ${esc(err.message)}</p>`;
+      if (!shownAt) $('players').innerHTML = `<p class="empty">Couldn't load players. ${esc(err.message)}</p>`;
     }
+  }
+
+  function show(r) {
+    status = r; players = r.players; locked = r.locked;
+    const when = new Date(r.lockAt).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Toronto', timeZoneName: 'short' });
+    $('lock').innerHTML = locked
+      ? `🔒 Merge picks <b>locked</b> ${esc(when)}. They score from Episode 8 on.`
+      : `Picks lock <b>${esc(when)}</b>. Unconfirmed picks won't count.`;
+    $('lock').hidden = false;
+    document.querySelector('.sub').hidden = locked;
+    render();
   }
 
   let toastTimer = null;
@@ -208,6 +236,8 @@
     sel.selectedIndex = 0;
     if (await act(sel, sel.options[0], { action: 'choose', player: p.name, castaway })) {
       p.hasPending = true;
+      changes++;
+      save();
       render();
       $('sent-text').innerHTML = `We sent ${esc(p.name)} an email to confirm <b>${esc(castaway)}</b> as their merge pick.`;
       $('sent').showModal();

@@ -60,9 +60,8 @@ def fetch():
         return r.read().decode("utf-8", "replace")
 
 
-def fetch_merge(previous):
-    """{player: castaway} once merge picks lock, None before. Falls back to the last saved picks
-    if the web app can't be reached."""
+def fetch_merge_status():
+    """The Merge Pick web app's status, or None if it can't be reached."""
     try:
         req = urllib.request.Request(MERGE_API + "?action=status", headers={"User-Agent": "Mozilla/5.0 (survivor-fantasy-table)"})
         with urllib.request.urlopen(req, timeout=30) as r:
@@ -71,10 +70,15 @@ def fetch_merge(previous):
             raise ValueError(out.get("error"))
     except Exception as exc:
         print(f"Couldn't fetch merge picks: {exc}")
-        return previous
-    if not out.get("locked"):
         return None
-    return {p["name"]: p["pick"] for p in out["players"] if p.get("pick")}
+    return out
+
+
+def merge_picks(status):
+    """{player: castaway} once merge picks lock, None before."""
+    if not status.get("locked"):
+        return None
+    return {p["name"]: p["pick"] for p in status["players"] if p.get("pick")}
 
 
 def ocr_departures(url, names):
@@ -436,7 +440,11 @@ def main():
         previous = json.loads((OUT / "data.json").read_text())
     except (OSError, ValueError):
         previous = {}
-    merge = fetch_merge(previous.get("merge"))
+    # merge_status is also a snapshot merge.html shows while it waits for the live status.
+    # If the web app can't be reached, keep what we had.
+    merge_status = fetch_merge_status()
+    merge = merge_picks(merge_status) if merge_status else previous.get("merge")
+    merge_status = merge_status or previous.get("merge_status")
     d = build(p.episodes, picks, merge)
     departures = find_departures(p.episodes, p.images, previous.get("departures", {}))
     now = datetime.now(timezone.utc)
@@ -448,7 +456,8 @@ def main():
         {"updated": now.strftime("%Y-%m-%d %H:%M UTC"), "source": URL,
          "episodes": {str(k): p.episodes[k] for k in d["eps"]},
          "departures": {str(k): v for k, v in departures.items()},
-         **({"merge": merge} if merge is not None else {})}, indent=2))
+         **({"merge": merge} if merge is not None else {}),
+         **({"merge_status": merge_status} if merge_status else {})}, indent=2))
     print(f"Episodes {d['eps']}; {len(d['castaways'])} castaways, {len(d['players'])} players -> {OUT}/index.html")
 
 
