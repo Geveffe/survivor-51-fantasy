@@ -45,8 +45,8 @@
   .notice b { color:var(--gold); }
 
   .panel { background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius); }
-  /* Shrink the list to its widest row so short names don't leave a wide gap */
-  .panel { width:fit-content; max-width:100%; overflow:hidden; }
+  /* Wide enough for a row with the email button or pending note, so the list doesn't shrink when nobody has picked */
+  .panel { width:fit-content; min-width:min(100%, 560px); max-width:100%; overflow:hidden; }
   .row { display:flex; align-items:center; gap:8px; padding:6px 12px; border-bottom:1px solid var(--line-soft); }
   .row:last-child { border-bottom:0; }
   .name { flex:0 0 6.5em; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
