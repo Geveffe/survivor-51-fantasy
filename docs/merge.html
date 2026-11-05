@@ -244,23 +244,28 @@
     }
   });
 
-  // Arriving from a confirmation email: save the pick, then show the list as usual.
-  // This runs in the page rather than straight from the link so email link scanners can't confirm picks.
+  // Arriving from a confirmation email: save the pick while the list loads, then reload the list
+  // so it shows the new pick. This runs in the page rather than straight from the link so email
+  // link scanners can't confirm picks.
   async function confirmFromLink() {
     const q = new URLSearchParams(location.search);
-    if (!q.get('confirm')) return;
+    if (!q.get('confirm')) return false;
     history.replaceState(null, '', location.pathname);
     notice('Confirming your merge pick…', '');
     try {
       const r = await call({ action: 'commit', player: q.get('player'), token: q.get('confirm') });
       const mail = r.already ? '' : r.emailed ? ' We emailed you a confirmation.' : " We couldn't send a confirmation email, but your pick is saved.";
       notice(`${r.already ? 'Already confirmed' : 'Confirmed'}: <b>${esc(r.castaway)}</b> is ${esc(r.player)}'s merge pick.${mail}`, 'ok');
+      changes++;
+      return true;
     } catch (err) {
       notice(esc(err.message), 'err');
+      return false;
     }
   }
 
-  confirmFromLink().then(load);
+  load();
+  confirmFromLink().then(confirmed => { if (confirmed) load(); });
 </script>
 </body>
 </html>
