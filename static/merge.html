@@ -70,6 +70,10 @@
   dialog form { display:flex; justify-content:flex-end; margin-top:20px; }
   dialog button { font-size:14px; padding:9px 20px; }
   .empty { color:var(--muted); padding:20px 14px; }
+  .lock { color:var(--muted); margin:-8px 0 20px; font-size:14px; }
+  .lock b { color:var(--torch); }
+  .final { font-weight:700; color:var(--torch); }
+  .final.none { font-weight:500; color:var(--faint); }
 </style>
 </head>
 <body>
@@ -78,6 +82,7 @@
   <p class="eyebrow">Survivor 51 Fantasy Tribe</p>
   <h1>Merge Pick</h1>
   <p class="sub">Pick one castaway still in the game who isn't already on your tribe. We'll email you a link, and your pick is saved only when you click it.</p>
+  <p class="lock" id="lock" hidden></p>
 
   <div class="notice" id="notice" hidden></div>
   <div class="panel" id="players"><p class="empty">Loading…</p></div>
@@ -110,11 +115,19 @@
     n.innerHTML = html; n.className = `notice ${kind}`; n.hidden = false;
   }
 
-  let players = [];
+  let players = [], locked = false;
   // Phones don't have room for the full button labels
   const narrow = matchMedia('(max-width: 480px)');
   narrow.addEventListener('change', () => render());
   function render() {
+    if (locked) {
+      $('players').innerHTML = players.map(p => `
+        <div class="row${p.pick ? ' picked' : ''}">
+          <span class="name">${esc(p.name)}</span>
+          ${p.pick ? `<span class="final">${esc(p.pick)}</span>` : '<span class="final none">No pick</span>'}
+        </div>`).join('') || '<p class="empty">No players found.</p>';
+      return;
+    }
     const label = narrow.matches ? ' Pick' : ' Merge Pick';
     const emailLabel = narrow.matches ? 'Pick Made – Email' : 'Pick Made – Email Confirmation';
     const pendingLabel = narrow.matches ? '⚠️ Confirm via email' : '⚠️ Pick made – confirm via email';
@@ -132,7 +145,14 @@
 
   async function load() {
     try {
-      players = (await call({ action: 'status' })).players;
+      const r = await call({ action: 'status' });
+      players = r.players; locked = r.locked;
+      const when = new Date(r.lockAt).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Toronto', timeZoneName: 'short' });
+      $('lock').innerHTML = locked
+        ? `🔒 Merge picks <b>locked</b> ${esc(when)}. Here's everyone's pick.`
+        : `Picks lock <b>${esc(when)}</b>. Unconfirmed picks won't count.`;
+      $('lock').hidden = false;
+      document.querySelector('.sub').hidden = locked;
       render();
     } catch (err) {
       $('players').innerHTML = `<p class="empty">Couldn't load players. ${esc(err.message)}</p>`;

@@ -2,12 +2,19 @@
  * Merge Pick backend for merge.html, run as a Google Apps Script web app.
  *
  * Choosing a pick only emails the player a confirmation link; the pick is saved
- * when they open that link. Player emails live in Config.gs (kept out of git).
+ * when they open that link. Picks lock at LOCK_AT, after which status shows everyone's
+ * pick. Player emails live in Config.gs (kept out of git).
  *
  * Deploy: Deploy > New deployment > Web app, Execute as "Me", access "Anyone".
  */
 const SITE = 'https://geveffe.github.io/survivor-51-fantasy/';
 const RAW = 'https://raw.githubusercontent.com/Geveffe/survivor-51-fantasy/main/';
+const LOCK_AT = new Date('2026-11-04T21:40:00-05:00');  // 9:40 PM Toronto time
+
+const locked = () => new Date() >= LOCK_AT;
+function checkOpen() {
+  if (locked()) throw new Error('Merge picks are locked, so picks can no longer be made or confirmed.');
+}
 
 function doGet(e) {
   let out;
@@ -60,10 +67,17 @@ function findPlayer(name) {
 
 const eligible = pl => league().remaining.filter(c => !pl.tribe.includes(c));
 
+// Once locked, everyone's confirmed pick is public; before that, only whether they have one.
 function status() {
   const lg = league();
+  if (locked()) {
+    return {
+      ok: true, locked: true, lockAt: LOCK_AT.toISOString(),
+      players: lg.players.map(pl => ({ name: pl.name, pick: (read('pick:' + pl.name) || {}).castaway || null })),
+    };
+  }
   return {
-    ok: true,
+    ok: true, locked: false, lockAt: LOCK_AT.toISOString(),
     players: lg.players.map(pl => ({ name: pl.name, eligible: eligible(pl),
       hasPick: !!read('pick:' + pl.name), hasPending: !!read('pending:' + pl.name) })),
   };
@@ -88,6 +102,7 @@ function send(pl, subject, html, throttled = true) {
 }
 
 function choose(player, castaway) {
+  checkOpen();
   const pl = findPlayer(player);
   if (!eligible(pl).includes(castaway)) throw new Error(`${castaway} isn't available as ${pl.name}'s merge pick.`);
   const token = Utilities.getUuid();
@@ -108,8 +123,10 @@ function emailCurrent(player) {
   let html = pick
     ? `<p>Your Survivor 51 merge pick is <b>${pick.castaway}</b>.</p>`
     : `<p>You haven't confirmed a Survivor 51 merge pick yet.</p>`;
-  if (pending) html += `<p>You also chose <b>${pending.castaway}</b> but haven't confirmed it. Click the link in that email to make it your pick.</p>`;
-  html += `<p><a href="${SITE}merge.html">Choose or change your merge pick</a></p>`;
+  if (pending && !locked()) html += `<p>You also chose <b>${pending.castaway}</b> but haven't confirmed it. Click the link in that email to make it your pick.</p>`;
+  html += locked()
+    ? `<p>Merge picks are now locked. <a href="${SITE}merge.html">See everyone's merge pick</a></p>`
+    : `<p><a href="${SITE}merge.html">Choose or change your merge pick</a></p>`;
   send(pl, 'Your merge pick', `<p>Hi ${pl.name},</p>${html}`);
   return { ok: true };
 }
@@ -122,6 +139,7 @@ function commit(player, token) {
   try {
     const pick = read('pick:' + pl.name), pending = read('pending:' + pl.name);
     if (pick && pick.token === token) return { ok: true, player: pl.name, castaway: pick.castaway, already: true };
+    checkOpen();
     if (!pending || pending.token !== token) {
       throw new Error('This link has expired. It may have been replaced by a newer choice; check for a more recent email.');
     }

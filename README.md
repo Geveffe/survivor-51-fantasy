@@ -15,4 +15,4 @@ A GitHub Action re-scrapes several times a day: on its own 3-hour schedule, hour
 2. Deploy > New deployment > Web app, Execute as **Me**, access **Anyone**, and authorize it.
 3. Put the web app URL in `API` in `static/merge.html` (and `docs/merge.html`).
 
-Picks are saved in the script's Script Properties (`pick:<player>`).
+Picks are saved in the script's Script Properties (`pick:<player>`). Picks lock at `LOCK_AT` in `MergePick.gs`; after that the page lists everyone's pick, and `scrape.py` reads them from the web app so the main page shows them in orange. A merge pick scores from Episode 8 (`MERGE_EP`) on.

@@ -19,6 +19,10 @@ from zoneinfo import ZoneInfo
 
 URL = "https://www.globaltv.com/survivor-51-fantasy-tribe/"
 OUT = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
+# The Merge Pick web app (apps-script/MergePick.gs); once picks lock it lists everyone's pick.
+MERGE_API = ("https://script.google.com/macros/s/"
+             "AKfycbyju2wPyiYeZuOM8PQTp2a5OfX-86JjJaFabusueIxB7riDcpCpSpAyU04LcFAianRf/exec")
+MERGE_EP = 8  # a merge pick earns points from this episode on
 
 
 class ResultsParser(HTMLParser):
@@ -54,6 +58,23 @@ def fetch():
     req = urllib.request.Request(URL, headers={"User-Agent": "Mozilla/5.0 (survivor-fantasy-table)"})
     with urllib.request.urlopen(req, timeout=30) as r:
         return r.read().decode("utf-8", "replace")
+
+
+def fetch_merge(previous):
+    """{player: castaway} once merge picks lock, None before. Falls back to the last saved picks
+    if the web app can't be reached."""
+    try:
+        req = urllib.request.Request(MERGE_API + "?action=status", headers={"User-Agent": "Mozilla/5.0 (survivor-fantasy-table)"})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            out = json.loads(r.read())
+        if not out.get("ok"):
+            raise ValueError(out.get("error"))
+    except Exception as exc:
+        print(f"Couldn't fetch merge picks: {exc}")
+        return previous
+    if not out.get("locked"):
+        return None
+    return {p["name"]: p["pick"] for p in out["players"] if p.get("pick")}
 
 
 def ocr_departures(url, names):
@@ -123,11 +144,20 @@ def rank(values):
     return {k: ordered.index(v) + 1 for k, v in values.items()}
 
 
-def build(episodes, picks):
+def earned(d, p, c, ep):
+    """Points castaway c earned player p in episode ep: a merge pick scores nothing before MERGE_EP."""
+    if c in p["picks"] or (d["merge"].get(p["name"]) == c and ep >= MERGE_EP):
+        return d["episodes"][ep].get(c) or 0
+    return 0
+
+
+def build(episodes, picks, merge=None):
     eps = sorted(episodes)
+    merge = merge or {}
     order = {c: i for i, c in enumerate(picks.get("castaway_order", []))}
     players = picks["players"]
-    picked = {c for p in players for c in p["picks"]}
+    tribe = {p["name"]: p["picks"] + ([merge[p["name"]]] if p["name"] in merge else []) for p in players}
+    picked = {c for t in tribe.values() for c in t}
     listed = {c for e in eps for c in episodes[e]}
     names = sorted(picked | listed, key=lambda c: (order.get(c, len(order)), c))
     tribe_of = {c: t for t, info in picks.get("tribes", {}).items() for c in info["members"]}
@@ -140,12 +170,13 @@ def build(episodes, picks):
             "tribe": tribe_of.get(c),
             "points": pts,
             "total": sum(x or 0 for x in pts),
-            "picked_by": sum(c in p["picks"] for p in players),
+            "picked_by": sum(c in t for t in tribe.values()),
         })
     cast_total = {c["name"]: c["total"] for c in castaways}
+    d = {"episodes": episodes, "merge": merge}
 
     def tribe_score(p, upto):
-        return sum(episodes[e].get(c) or 0 for e in eps[:upto] for c in p["picks"])
+        return sum(earned(d, p, c, e) for e in eps[:upto] for c in tribe[p["name"]])
 
     totals = {p["name"]: tribe_score(p, len(eps)) for p in players}
     ranks = rank(totals)
@@ -157,15 +188,17 @@ def build(episodes, picks):
             "name": n,
             "picks": p["picks"],
             "mvp": p["mvp"],
+            "merge": merge.get(n),
             "total": totals[n],
             "rank": ranks[n],
             "move": prev[n] - ranks[n],
-            "last": sum(episodes[eps[-1]].get(c) or 0 for c in p["picks"]),
+            "last": sum(earned(d, p, c, eps[-1]) for c in tribe[n]),
         })
     standings.sort(key=lambda s: (s["rank"], s["name"]))
-    return {"eps": eps, "episodes": episodes, "castaways": castaways, "cast_total": cast_total,
-            "players": players, "standings": standings, "totals": totals, "ranks": ranks,
-            "tribes": picks.get("tribes", {})}
+    d.update({"eps": eps, "castaways": castaways, "cast_total": cast_total, "players": players,
+              "tribe": tribe, "standings": standings, "totals": totals, "ranks": ranks,
+              "tribes": picks.get("tribes", {})})
+    return d
 
 
 e = html.escape
@@ -226,6 +259,9 @@ def podium(d):
             f'<li class="{"mvp" if c == s["mvp"] else ""}">{tribe_dot(d, c)}{e(c)}</li>'
             for c in sorted(s["picks"], key=lambda c: -d["cast_total"].get(c, 0))
         )
+        if s["merge"]:
+            chips += f'<li class="merge" title="Merge pick, scoring from Ep {MERGE_EP}">{tribe_dot(d, s["merge"])}{e(s["merge"])}</li>'
+
         cards.append(f'''<article class="podium-card place-{s["rank"]}">
   <div class="medal">{s["rank"]}</div>
   <h3>{e(s["name"])}</h3>
@@ -251,6 +287,8 @@ def leaderboard(d):
         rows = []
         for s in chunk:
             title = "Tribe: " + ", ".join(s["picks"]) + f' · MVP: {s["mvp"]}'
+            if s["merge"]:
+                title += f' · Merge pick: {s["merge"]}'
             rows.append(
                 f'<li title="{e(title)}"><span class="rk{" top" if s["rank"] <= 3 else ""}">{s["rank"]}</span><span class="nm">{e(s["name"])}</span>'
                 f'{move_badge(s["move"])}<span class="ep">+{s["last"]}</span><span class="tot">{s["total"]}</span></li>'
@@ -259,27 +297,38 @@ def leaderboard(d):
     return "\n".join(cols)
 
 
-def tribe_grid(d, points, label):
-    """Spreadsheet-style grid: rows = castaways, columns = fantasy players.
+def tribe_grid(d, ep, label):
+    """Spreadsheet-style grid: rows = castaways, columns = fantasy players. ep None = whole season.
 
-    Black = not on that player's tribe, yellow = MVP, red = castaway not listed.
+    Black = not on that player's tribe, yellow = MVP, orange = merge pick, red = castaway not listed.
     """
     players = d["players"]
-    totals = {p["name"]: sum(points.get(c) or 0 for c in p["picks"]) for p in players}
+    eps = d["eps"] if ep is None else [ep]
+
+    def value(p, c):
+        if ep is not None and d["episodes"][ep].get(c) is None:
+            return None
+        return sum(earned(d, p, c, x) for x in eps)
+
+    totals = {p["name"]: sum(value(p, c) or 0 for c in d["tribe"][p["name"]]) for p in players}
     ranks = rank(totals)
     head = "".join(f'<th class="pl" scope="col"><span>{e(p["name"])}</span></th>' for p in players)
     body = []
     for c in d["castaways"]:
         cells = []
         for p in players:
-            if c["name"] not in p["picks"]:
+            if c["name"] not in d["tribe"][p["name"]]:
                 cells.append("<td class=off></td>")
                 continue
-            v = points.get(c["name"])
+            v = value(p, c["name"])
             cls = "gone" if v is None else "on"
             if c["name"] == p["mvp"]:
                 cls += " mvp"
+            is_merge = c["name"] not in p["picks"]
+            if is_merge:
+                cls += " merge"
             title = f'{p["name"]} · {c["name"]}' + (" (MVP)" if c["name"] == p["mvp"] else "")
+            title += f" (merge pick, scores from Ep {MERGE_EP})" if is_merge else ""
             title += " · out" if v is None else f" · {v} pts"
             cells.append(f'<td class="{cls}" title="{e(title)}">{"" if v is None else v}</td>')
         body.append(f'<tr><th class="cn" scope="row">{tribe_dot(d, c["name"])}{e(c["name"])}</th>{"".join(cells)}</tr>')
@@ -326,15 +375,14 @@ def castaway_table(d, departures):
 def render(d, departures, updated):
     eps = d["eps"]
     last = eps[-1]
-    overall = {c["name"]: c["total"] for c in d["castaways"]}
-    views = [("overall", "Season", overall)] + [(f"ep{n}", f"Ep {n}", d["episodes"][n]) for n in eps]
+    views = [("overall", "Season", None)] + [(f"ep{n}", f"Ep {n}", n) for n in eps]
     buttons = "".join(
         f'<button type="button" data-view="{k}" aria-pressed="{str(i == 0).lower()}">{label}</button>'
         for i, (k, label, _) in enumerate(views)
     )
     grids = "".join(
-        f'<div class="view" data-view="{k}"{"" if i == 0 else " hidden"}>{tribe_grid(d, pts, label)}</div>'
-        for i, (k, label, pts) in enumerate(views)
+        f'<div class="view" data-view="{k}"{"" if i == 0 else " hidden"}>{tribe_grid(d, ep, label)}</div>'
+        for i, (k, label, ep) in enumerate(views)
     )
     legend_tribes = "".join(
         f'<span><i class="dot" style="--c:{info["color"]}"></i>{e(t)}</span>' for t, info in d["tribes"].items()
@@ -350,6 +398,9 @@ def render(d, departures, updated):
         "CASTAWAYS": castaway_table(d, departures),
         "REPORT": weekly_report(d, departures),
         "LEGEND_TRIBES": legend_tribes,
+        "LEGEND_MERGE": (f'<span><i class="sw" style="background:var(--cell-merge)"></i>Merge pick (scores from Ep {MERGE_EP})</span>'
+                         if d["merge"] else ""),
+        "MERGE_EP": str(MERGE_EP),
         "LAST_EP": str(last),
         "CLIMBER": e(climber["name"]) if climber["move"] > 0 else "No movement",
         "CLIMB": f"▲{climber['move']}" if climber["move"] > 0 else "",
@@ -381,12 +432,13 @@ def main():
                     print(f"Correction for {name} ep {ep} now matches the source; it can be removed.")
                 p.episodes[int(ep)][name] = pts
     picks = json.loads((here / "picks.json").read_text())
-    d = build(p.episodes, picks)
     try:
-        previous = json.loads((OUT / "data.json").read_text()).get("departures", {})
+        previous = json.loads((OUT / "data.json").read_text())
     except (OSError, ValueError):
         previous = {}
-    departures = find_departures(p.episodes, p.images, previous)
+    merge = fetch_merge(previous.get("merge"))
+    d = build(p.episodes, picks, merge)
+    departures = find_departures(p.episodes, p.images, previous.get("departures", {}))
     now = datetime.now(timezone.utc)
     updated = now.astimezone(ZoneInfo("America/Toronto")).strftime("%b %-d, %Y · %-I:%M %p %Z")
     OUT.mkdir(parents=True, exist_ok=True)
@@ -395,7 +447,8 @@ def main():
     (OUT / "data.json").write_text(json.dumps(
         {"updated": now.strftime("%Y-%m-%d %H:%M UTC"), "source": URL,
          "episodes": {str(k): p.episodes[k] for k in d["eps"]},
-         "departures": {str(k): v for k, v in departures.items()}}, indent=2))
+         "departures": {str(k): v for k, v in departures.items()},
+         **({"merge": merge} if merge is not None else {})}, indent=2))
     print(f"Episodes {d['eps']}; {len(d['castaways'])} castaways, {len(d['players'])} players -> {OUT}/index.html")
 
 

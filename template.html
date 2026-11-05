@@ -16,7 +16,7 @@
     --bg:#0c1611; --surface:#13221a; --surface-2:#1a2d22; --line:#284033; --line-soft:#1f3328;
     --fg:#f1e9d6; --muted:#9db3a4; --faint:#6f8a7a;
     --gold:#e9b949; --torch:#e8743a; --up:#62d08f; --down:#ef6b5a;
-    --cell-on:#f3ead6; --cell-ink:#1c1a15; --cell-mvp:#f6d64a; --cell-off:#040705; --cell-gone:#c9372c;
+    --cell-on:#f3ead6; --cell-ink:#1c1a15; --cell-mvp:#f6d64a; --cell-off:#040705; --cell-gone:#c9372c; --cell-merge:#f0913a;
     --radius:14px;
     --display:"Cinzel", Georgia, serif;
   }
@@ -87,6 +87,8 @@
   .chips li { font-size:12px; font-weight:600; padding:3px 9px 3px 8px; border-radius:999px; background:rgba(241,233,214,.06); border:1px solid var(--line); display:inline-flex; align-items:center; }
   .chips li.mvp { background:rgba(246,214,74,.12); border-color:rgba(246,214,74,.55); color:var(--cell-mvp); }
   .chips li.mvp::after { content:"MVP"; font-size:9px; letter-spacing:.08em; margin-left:6px; opacity:.85; }
+  .chips li.merge { background:rgba(240,145,58,.14); border-color:rgba(240,145,58,.6); color:var(--cell-merge); }
+  .chips li.merge::after { content:"MERGE"; font-size:9px; letter-spacing:.08em; margin-left:6px; opacity:.85; }
 
   /* Leaderboard list */
   .board-wrap { display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:8px 28px; margin-top:28px; }
@@ -128,6 +130,8 @@
   .grid td.off { background:var(--cell-off); }
   .grid td.gone { background:var(--cell-gone); }
   .grid td.gone.mvp { box-shadow:inset 0 0 0 3px var(--cell-mvp); }
+  .grid td.merge { background:var(--cell-merge); color:var(--cell-ink); }
+  .grid td.gone.merge { background:var(--cell-gone); box-shadow:inset 0 0 0 3px var(--cell-merge); }
   .grid td:hover { outline:2px solid var(--torch); }
   .grid th.pl { height:92px; vertical-align:bottom; font-size:12px; font-weight:600; color:var(--muted); }
   .grid th.pl span { writing-mode:vertical-rl; transform:rotate(180deg); white-space:nowrap; padding:6px 0; display:inline-block; }
@@ -206,7 +210,7 @@
   <section id="standings">
     <div class="section-head">
       <h2>Standings</h2>
-      <p>A player's score is the total points earned by their eight castaways. Arrows show movement since the previous episode.</p>
+      <p>A player's score is the total points earned by their eight castaways, plus their merge pick from Episode {{MERGE_EP}} on. Arrows show movement since the previous episode.</p>
     </div>
     <div class="podium">
 {{PODIUM}}
@@ -227,6 +231,7 @@
         <div class="legend">
           <span><i class="sw" style="background:var(--cell-on)"></i>On tribe</span>
           <span><i class="sw" style="background:var(--cell-mvp)"></i>MVP</span>
+          {{LEGEND_MERGE}}
           <span><i class="sw" style="background:var(--cell-off)"></i>Not on tribe</span>
           <span><i class="sw" style="background:var(--cell-gone)"></i>Out</span>
           {{LEGEND_TRIBES}}
