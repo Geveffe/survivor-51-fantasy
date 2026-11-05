@@ -10,6 +10,8 @@
 const SITE = 'https://geveffe.github.io/survivor-51-fantasy/';
 const RAW = 'https://raw.githubusercontent.com/Geveffe/survivor-51-fantasy/main/';
 const LOCK_AT = new Date('2026-11-11T20:00:00-05:00');  // 8:00 PM Toronto time, Wed Nov 11
+// Castaways known to be out before the site's points data catches up.
+const ALSO_OUT = ['Brady'];  // voted out in episode 7
 
 const locked = () => new Date() >= LOCK_AT;
 function checkOpen() {
@@ -49,7 +51,7 @@ function league() {
   const get = path => JSON.parse(UrlFetchApp.fetch(RAW + path).getContentText());
   const picks = get('picks.json'), data = get('docs/data.json');
   const last = String(Math.max(...Object.keys(data.episodes).map(Number)));
-  const gone = (data.departures[last] || []).map(d => d.name);
+  const gone = (data.departures[last] || []).map(d => d.name).concat(ALSO_OUT);
   const out = {
     players: picks.players.map(pl => ({ name: pl.name, tribe: pl.picks.concat(pl.mvp) })),
     remaining: Object.keys(data.episodes[last]).filter(c => !gone.includes(c)),
