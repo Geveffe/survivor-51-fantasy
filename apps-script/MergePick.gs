@@ -156,17 +156,38 @@ function commit(player, token) {
   } finally {
     lock.releaseLock();
   }
-  // Email the confirmed pick right away so the player knows it worked and the owner's Sent
-  // folder keeps a record. A mail failure doesn't undo the saved pick.
-  let emailed = true;
+  return { ok: true, player: pl.name, castaway, emailed: emailConfirmed(pl, castaway) };
+}
+
+// Email the confirmed pick right away so the player knows it worked and the owner's Sent
+// folder keeps a record. A mail failure doesn't undo the saved pick.
+function emailConfirmed(pl, castaway) {
   try {
     send(pl, `Confirmed: ${castaway} is your merge pick`,
       `<p>Hi ${pl.name},</p>
        <p>Your Survivor 51 merge pick is confirmed as <b>${castaway}</b>.</p>
        <p>Confirmed ${new Date().toUTCString()}.</p>
        <p><a href="${SITE}merge.html">View or change your merge pick</a></p>`, false);
+    return true;
   } catch (err) {
-    emailed = false;
+    return false;
   }
-  return { ok: true, player: pl.name, castaway, emailed };
+}
+
+// Set a player's pick by hand, as if they'd clicked Confirm in their email, and send them the
+// usual confirmation email. Not reachable from the web app: change the defaults below, then pick
+// adminSetPick in the editor's function menu and press Run.
+function adminSetPick(player = 'Monica', castaway = 'Maggie') {
+  const pl = findPlayer(player);
+  if (!eligible(pl).includes(castaway)) throw new Error(`${castaway} isn't available as ${pl.name}'s merge pick.`);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    write('pick:' + pl.name, { castaway, token: 'admin:' + Utilities.getUuid(), at: new Date().toISOString() });
+    props().deleteProperty('pending:' + pl.name);
+  } finally {
+    lock.releaseLock();
+  }
+  const emailed = emailConfirmed(pl, castaway);
+  console.log(`${pl.name}'s merge pick is now ${castaway}; confirmation email ${emailed ? 'sent' : 'FAILED'}.`);
 }
