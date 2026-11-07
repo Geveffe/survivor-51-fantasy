@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-06 22:19 UTC",
+  "updated": "2026-11-07 06:19 UTC",
   "source": "https://www.globaltv.com/survivor-51-fantasy-tribe/",
   "episodes": {
     "2": {
@@ -357,7 +357,7 @@
           "Lewis",
           "Maggie"
         ],
-        "hasPick": false,
+        "hasPick": true,
         "hasPending": false
       },
       {
