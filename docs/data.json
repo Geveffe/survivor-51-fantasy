@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-08 14:19 UTC",
+  "updated": "2026-11-09 03:19 UTC",
   "source": "https://www.globaltv.com/survivor-51-fantasy-tribe/",
   "episodes": {
     "2": {
@@ -244,7 +244,7 @@
           "Kilby",
           "Kristin"
         ],
-        "hasPick": false,
+        "hasPick": true,
         "hasPending": false
       },
       {
