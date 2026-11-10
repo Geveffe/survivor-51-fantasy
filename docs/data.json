@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-10 05:19 UTC",
+  "updated": "2026-11-10 18:19 UTC",
   "source": "https://www.globaltv.com/survivor-51-fantasy-tribe/",
   "episodes": {
     "2": {
@@ -95,7 +95,7 @@
       "Lewis": 6,
       "Maggie": 6,
       "Mike": 11,
-      "Ori": 25,
+      "Ori": 35,
       "Sharonda": 16
     },
     "7": {
@@ -371,7 +371,7 @@
           "Jelly",
           "Mike"
         ],
-        "hasPick": false,
+        "hasPick": true,
         "hasPending": false
       },
       {
