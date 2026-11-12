@@ -97,14 +97,14 @@ function throttle(pl) {
 }
 
 // Pass throttled = false for emails only a confirmation link can trigger.
-function send(pl, subject, html, throttled = true) {
+function send(pl, subject, html, throttled = true, extra = {}) {
   if (throttled) throttle(pl);
-  MailApp.sendEmail({
+  MailApp.sendEmail(Object.assign({
     to: EMAILS[pl.name],
     name: 'Survivor 51 Fantasy',
     subject,
     htmlBody: `<div style="font:15px/1.5 Arial,sans-serif">${html}</div>`,
-  });
+  }, extra));
 }
 
 function choose(player, castaway) {
@@ -177,7 +177,7 @@ function emailConfirmed(pl, castaway) {
 // Set a player's pick by hand, as if they'd clicked Confirm in their email, and send them the
 // usual confirmation email. Not reachable from the web app: change the defaults below, then pick
 // adminSetPick in the editor's function menu and press Run.
-function adminSetPick(player = 'Monica', castaway = 'Maggie') {
+function adminSetPick(player = 'ChelseaB', castaway = 'Sharonda') {
   const pl = findPlayer(player);
   if (!eligible(pl).includes(castaway)) throw new Error(`${castaway} isn't available as ${pl.name}'s merge pick.`);
   const lock = LockService.getScriptLock();
@@ -190,4 +190,108 @@ function adminSetPick(player = 'Monica', castaway = 'Maggie') {
   }
   const emailed = emailConfirmed(pl, castaway);
   console.log(`${pl.name}'s merge pick is now ${castaway}; confirmation email ${emailed ? 'sent' : 'FAILED'}.`);
+}
+
+// Urgent reminders to everyone without a confirmed pick at 6:00, 7:00, 7:30 and 7:55 PM Toronto,
+// cc'ing REMINDER_CC. Run setupReminders once from the editor to schedule them; run
+// previewReminders any time to log who would be emailed without sending anything.
+const REMINDER_CC = 'dankorey4@gmail.com';
+const REMINDER_TIMES = ['2026-11-11T18:00:00-05:00', '2026-11-11T19:00:00-05:00', '2026-11-11T19:30:00-05:00',
+  '2026-11-11T19:55:00-05:00'];
+
+// Safe to run again after adding a time: it only schedules times it hasn't already scheduled,
+// so reminders that are still waiting to fire are left alone.
+function setupReminders() {
+  let done = read('remindersScheduled');
+  // The first version of setupReminders scheduled 6:00, 7:00 and 7:30 without recording them.
+  if (!done) done = ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'sendReminders')
+    ? REMINDER_TIMES.slice(0, 3) : [];
+  REMINDER_TIMES.filter(t => !done.includes(t) && new Date(t) > new Date()).forEach(t => {
+    ScriptApp.newTrigger('sendReminders').timeBased().at(new Date(t)).create();
+    done.push(t);
+    console.log('Reminder scheduled for ' + new Date(t).toString());
+  });
+  write('remindersScheduled', done);
+  console.log(`${ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === 'sendReminders').length} reminder triggers in place.`);
+  previewReminders();
+}
+
+const unpicked = () => {
+  const all = props().getProperties();
+  return league().players.filter(pl => !all['pick:' + pl.name] && EMAILS[pl.name])
+    .map(pl => Object.assign({}, pl, { pending: JSON.parse(all['pending:' + pl.name] || 'null') }));
+};
+
+// Time until the lock, to the nearest 5 minutes, e.g. "2 hours", "1 hour", "30 minutes".
+function timeLeft() {
+  const mins = Math.max(5, Math.round((LOCK_AT - new Date()) / 300000) * 5);
+  const h = Math.floor(mins / 60), m = mins % 60;
+  const part = (n, unit) => n ? `${n} ${unit}${n === 1 ? '' : 's'}` : '';
+  return [part(h, 'hour'), part(m, 'minute')].filter(Boolean).join(' ');
+}
+
+function previewReminders() {
+  const list = unpicked();
+  console.log(`Need to confirm: ${list.filter(pl => pl.pending).map(pl => pl.name).join(', ') || 'nobody'}`);
+  console.log(`No pick at all: ${list.filter(pl => !pl.pending).map(pl => pl.name).join(', ') || 'nobody'}`);
+  console.log(`Each round needs ${list.length * 2} of today's remaining ${MailApp.getRemainingDailyQuota()} email recipients.`);
+  console.log('Time left right now: ' + timeLeft());
+}
+
+function sendReminders() {
+  if (locked()) return;
+  const list = unpicked(), left = timeLeft();
+  if (!list.length) return console.log('Everyone has a confirmed pick; no reminders sent.');
+  const wrap = html => `<div style="font:15px/1.5 Arial,sans-serif">${html}</div>`;
+  const urgent = text => `<p style="color:#b00020;font-weight:bold">${text}</p>`;
+  const button = label => `<p><a href="${SITE}merge.html" style="display:inline-block;background:#e9b949;color:#1c1a15;font-weight:bold;padding:10px 18px;border-radius:999px;text-decoration:none">${label}</a></p>`;
+  const lockNote = `merge picks are locked at 8:00 PM Toronto time`;
+
+  // Chose a castaway but never clicked Confirm. With a pending pick, the email carries that
+  // pick's own confirm link; without one (the bcc'd group email) it points back to their earlier email.
+  const confirmMail = (name, pending) => ({
+    subject: `URGENT: Only ${left} left to confirm your Survivor 51 merge pick`,
+    html: pending
+      ? `<p>Hi ${name},</p>
+        ${urgent(`This is urgent: there's only ${left} left until ${lockNote}, and your merge pick isn't confirmed yet.`)}
+        <p>You chose <b>${pending.castaway}</b>, but it won't count until you confirm it. Click below to confirm <b>${pending.castaway}</b> as your merge pick:</p>
+        <p><a href="${SITE}merge.html?player=${encodeURIComponent(name)}&confirm=${pending.token}" style="display:inline-block;background:#e9b949;color:#1c1a15;font-weight:bold;padding:10px 18px;border-radius:999px;text-decoration:none">Confirm ${pending.castaway}</a></p>
+        <p>Want someone else instead? <a href="${SITE}merge.html">Choose a different merge pick</a></p>`
+      : `<p>Hi ${name},</p>
+        ${urgent(`This is urgent: there's only ${left} left until ${lockNote}, and your merge pick isn't confirmed yet.`)}
+        <p>You chose a castaway, but it won't count until you click the <b>Confirm</b> button in the email we sent you about it (check spam too).</p>
+        <p>Can't find it? Choose again here and we'll send a new confirmation email:</p>
+        ${button('Choose and confirm my pick')}`,
+  });
+  // Hasn't chosen anything.
+  const chooseMail = name => ({
+    subject: `URGENT: Only ${left} left to make your Survivor 51 merge pick`,
+    html: `<p>Hi ${name},</p>
+      ${urgent(`This is urgent: there's only ${left} left until ${lockNote}, and we don't have a merge pick for you yet.`)}
+      ${button('Make your merge pick now')}
+      <p>After you choose, we'll email you a confirmation link. Your pick isn't saved until you click <b>Confirm</b> in that email.</p>`,
+  });
+
+  // One email per player costs two recipients each against MailApp's daily quota (player + cc).
+  // If that won't fit, fall back to one email per group, bcc'd to its players.
+  if (MailApp.getRemainingDailyQuota() >= list.length * 2) {
+    list.forEach(pl => {
+      const mail = pl.pending ? confirmMail(pl.name, pl.pending) : chooseMail(pl.name);
+      try {
+        send(pl, mail.subject, mail.html, false, { cc: REMINDER_CC });
+      } catch (err) {
+        console.error(`Reminder to ${pl.name} failed: ${err.message}`);
+      }
+    });
+  } else {
+    [[list.filter(pl => pl.pending), confirmMail('everyone')], [list.filter(pl => !pl.pending), chooseMail('everyone')]]
+      .filter(([group]) => group.length)
+      .forEach(([group, mail]) => MailApp.sendEmail({
+        to: REMINDER_CC, bcc: group.map(pl => EMAILS[pl.name]).join(','),
+        name: 'Survivor 51 Fantasy', subject: mail.subject, htmlBody: wrap(mail.html),
+      }));
+    console.log('Low on email quota, so sent group emails bcc\'d instead of one per player.');
+  }
+  console.log(`Sent ${left} reminders. Need to confirm: ${list.filter(pl => pl.pending).map(pl => pl.name).join(', ') || 'nobody'}. ` +
+    `No pick: ${list.filter(pl => !pl.pending).map(pl => pl.name).join(', ') || 'nobody'}.`);
 }
