@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12 00:19 UTC",
+  "updated": "2026-11-12 01:01 UTC",
   "source": "https://www.globaltv.com/survivor-51-fantasy-tribe/",
   "episodes": {
     "2": {
@@ -160,465 +160,170 @@
       }
     ]
   },
+  "merge": {
+    "Adam": "Lewis",
+    "Amanda": "Mike",
+    "Ashley": "An",
+    "Barrie": "Maggie",
+    "BenS": "Jelly",
+    "BenK": "Kristin",
+    "ChelseaL": "Lewis",
+    "Claudette": "Lewis",
+    "Cynthia": "Lewis",
+    "Dan": "An",
+    "Danielle": "Jelly",
+    "Dianna": "Carter",
+    "Debbie": "Kristin",
+    "Gerry": "Jelly",
+    "Jamie": "Lewis",
+    "JeanLuc": "Devin",
+    "Jeff": "Devin",
+    "Katie": "Maggie",
+    "Kim": "Sharonda",
+    "Larry": "An",
+    "Marcia": "Sharonda",
+    "Marina": "Sharonda",
+    "Marisa": "Sharonda",
+    "Matt": "Eric",
+    "Mike": "Jelly",
+    "Melanie": "Jelly",
+    "Monica": "Maggie",
+    "Ryan": "Lewis",
+    "Shelby": "Maggie",
+    "Tony": "Sharonda"
+  },
   "merge_status": {
     "ok": true,
-    "locked": false,
+    "locked": true,
     "lockAt": "2026-11-12T01:00:00.000Z",
     "players": [
       {
         "name": "Adam",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Kristin",
-          "Lewis",
-          "Maggie",
-          "Mike"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Lewis"
       },
       {
         "name": "Amanda",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Jelly",
-          "Maggie",
-          "Mike"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Mike"
       },
       {
         "name": "Ashley",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Jelly",
-          "Lewis",
-          "Maggie"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "An"
       },
       {
         "name": "Barrie",
-        "eligible": [
-          "An",
-          "Devin",
-          "Eric",
-          "Kristin",
-          "Lewis",
-          "Maggie"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Maggie"
       },
       {
         "name": "BenS",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Jelly",
-          "Lewis",
-          "Maggie"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Jelly"
       },
       {
         "name": "BenK",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Jelly",
-          "Kilby",
-          "Kristin"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Kristin"
       },
       {
         "name": "ChelseaB",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Eric",
-          "Lewis",
-          "Maggie",
-          "Mike",
-          "Sharonda"
-        ],
-        "hasPick": false,
-        "hasPending": false
+        "pick": null
       },
       {
         "name": "ChelseaL",
-        "eligible": [
-          "An",
-          "Carter",
-          "Cristian",
-          "Kilby",
-          "Lewis",
-          "Maggie",
-          "Sharonda"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Lewis"
       },
       {
         "name": "Claudette",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Eric",
-          "Lewis",
-          "Maggie",
-          "Mike"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Lewis"
       },
       {
         "name": "Cynthia",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Eric",
-          "Jelly",
-          "Kristin",
-          "Lewis",
-          "Mike"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Lewis"
       },
       {
         "name": "Dan",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Kilby",
-          "Lewis",
-          "Maggie",
-          "Sharonda"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "An"
       },
       {
         "name": "Danielle",
-        "eligible": [
-          "An",
-          "Carter",
-          "Cristian",
-          "Eric",
-          "Jelly",
-          "Lewis",
-          "Mike"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Jelly"
       },
       {
         "name": "Dianna",
-        "eligible": [
-          "An",
-          "Carter",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Kilby",
-          "Lewis",
-          "Sharonda"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Carter"
       },
       {
         "name": "Debbie",
-        "eligible": [
-          "An",
-          "Carter",
-          "Eric",
-          "Kilby",
-          "Kristin",
-          "Lewis",
-          "Maggie"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Kristin"
       },
       {
         "name": "Gerry",
-        "eligible": [
-          "An",
-          "Carter",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Jelly",
-          "Mike"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Jelly"
       },
       {
         "name": "Harrison",
-        "eligible": [
-          "Carter",
-          "Cristian",
-          "Eric",
-          "Jelly",
-          "Kristin",
-          "Maggie",
-          "Mike"
-        ],
-        "hasPick": false,
-        "hasPending": false
+        "pick": null
       },
       {
         "name": "Jamie",
-        "eligible": [
-          "An",
-          "Carter",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Kilby",
-          "Lewis",
-          "Maggie"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Lewis"
       },
       {
         "name": "JeanLuc",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Lewis",
-          "Maggie"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Devin"
       },
       {
         "name": "Jeff",
-        "eligible": [
-          "An",
-          "Carter",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Maggie"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Devin"
       },
       {
         "name": "Katie",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Kilby",
-          "Maggie",
-          "Mike"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Maggie"
       },
       {
         "name": "Kim",
-        "eligible": [
-          "Carter",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Kilby",
-          "Maggie",
-          "Sharonda"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Sharonda"
       },
       {
         "name": "Larry",
-        "eligible": [
-          "An",
-          "Carter",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Jelly",
-          "Kilby",
-          "Mike",
-          "Sharonda"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "An"
       },
       {
         "name": "Marcia",
-        "eligible": [
-          "An",
-          "Eric",
-          "Jelly",
-          "Kilby",
-          "Lewis",
-          "Maggie",
-          "Sharonda"
-        ],
-        "hasPick": false,
-        "hasPending": false
+        "pick": "Sharonda"
       },
       {
         "name": "Marina",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Eric",
-          "Lewis",
-          "Maggie",
-          "Mike",
-          "Sharonda"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Sharonda"
       },
       {
         "name": "Marisa",
-        "eligible": [
-          "Carter",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Kilby",
-          "Maggie",
-          "Mike",
-          "Sharonda"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Sharonda"
       },
       {
         "name": "Matt",
-        "eligible": [
-          "Carter",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Jelly",
-          "Kristin",
-          "Lewis",
-          "Maggie"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Eric"
       },
       {
         "name": "Mike",
-        "eligible": [
-          "An",
-          "Eric",
-          "Jelly",
-          "Kristin",
-          "Lewis",
-          "Mike",
-          "Sharonda"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Jelly"
       },
       {
         "name": "Melanie",
-        "eligible": [
-          "An",
-          "Carter",
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Jelly",
-          "Lewis",
-          "Maggie"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Jelly"
       },
       {
         "name": "Monica",
-        "eligible": [
-          "An",
-          "Carter",
-          "Eric",
-          "Kristin",
-          "Maggie",
-          "Mike",
-          "Sharonda"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Maggie"
       },
       {
         "name": "Ryan",
-        "eligible": [
-          "An",
-          "Carter",
-          "Cristian",
-          "Eric",
-          "Jelly",
-          "Kilby",
-          "Lewis",
-          "Maggie",
-          "Mike",
-          "Sharonda"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Lewis"
       },
       {
         "name": "Shelby",
-        "eligible": [
-          "Cristian",
-          "Devin",
-          "Eric",
-          "Kilby",
-          "Kristin",
-          "Lewis",
-          "Maggie"
-        ],
-        "hasPick": false,
-        "hasPending": false
+        "pick": "Maggie"
       },
       {
         "name": "Tony",
-        "eligible": [
-          "An",
-          "Cristian",
-          "Eric",
-          "Kristin",
-          "Lewis",
-          "Maggie",
-          "Mike",
-          "Sharonda"
-        ],
-        "hasPick": true,
-        "hasPending": false
+        "pick": "Sharonda"
       }
     ]
   }
