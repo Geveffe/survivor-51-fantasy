@@ -81,12 +81,14 @@ def merge_picks(status):
     return {p["name"]: p["pick"] for p in status["players"] if p.get("pick")}
 
 
-def ocr_departures(url, names):
+def ocr_departures(url, scores):
     """Read each castaway's points breakdown from the episode image.
 
-    Anyone without a "Survived the Week" line left that episode. Returns None when
-    OCR isn't available or the image doesn't look like one row per castaway.
+    Anyone without a "Survived the Week" line left that episode. A castaway who scored 0
+    has no breakdown at all, so they left too. Returns None when OCR isn't available or
+    the image doesn't look like one row per castaway.
     """
+    names = list(scores)
     if not url or not shutil.which("tesseract"):
         return None
     try:
@@ -108,6 +110,9 @@ def ocr_departures(url, names):
         text = subprocess.run(["tesseract", "stdin", "stdout", "--psm", "6"], input=buf.getvalue(),
                               capture_output=True).stdout.decode().lower()
         if "breakdown" not in text:
+            if scores[name] == 0:  # nothing earned, not even survival points
+                left.append({"name": name, "how": "voted out"})
+                continue
             return None
         if "survived" not in text:
             left.append({"name": name, "how": "quit" if "forfeit" in text else "voted out"})
@@ -121,7 +126,7 @@ def find_departures(episodes, images, previous):
     out = {}
     for i, ep in enumerate(eps):
         try:
-            found = ocr_departures(images.get(ep), list(episodes[ep]))
+            found = ocr_departures(images.get(ep), episodes[ep])
         except Exception as exc:  # network or OCR trouble shouldn't break the site
             print(f"OCR failed for episode {ep}: {exc}")
             found = None
