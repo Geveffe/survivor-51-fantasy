@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-13 03:27 UTC",
+  "updated": "2026-11-13 03:34 UTC",
   "source": "https://www.globaltv.com/survivor-51-fantasy-tribe/",
   "episodes": {
     "2": {
@@ -200,6 +200,7 @@
     "Dianna": "Carter",
     "Debbie": "Kristin",
     "Gerry": "Jelly",
+    "Harrison": "Jelly",
     "Jamie": "Lewis",
     "JeanLuc": "Devin",
     "Jeff": "Devin",
@@ -284,7 +285,7 @@
       },
       {
         "name": "Harrison",
-        "pick": null
+        "pick": "Jelly"
       },
       {
         "name": "Jamie",
