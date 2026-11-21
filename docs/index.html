@@ -192,7 +192,7 @@
       <p class="eyebrow">Season 51 · League standings</p>
       <h1>The Tribe Has Spoken</h1>
     </div>
-    <p class="updated">Through Episode 9 · <a href="status.html" title="Update status">Updated Nov 21, 2026 · 10:11 AM EST</a></p>
+    <p class="updated">Through Episode 9 · <a href="status.html" title="Update status">Updated Nov 21, 2026 · 10:13 AM EST</a></p>
   </div>
   <div class="container">
 <section class="report" aria-labelledby="report-title">
@@ -260,7 +260,7 @@
     <div class="panel">
       <div class="toolbar">
         <div class="seg" role="group" aria-label="Points shown"><button type="button" data-view="overall" aria-pressed="true">Season</button><button type="button" data-view="ep2" aria-pressed="false">Ep 2</button><button type="button" data-view="ep3" aria-pressed="false">Ep 3</button><button type="button" data-view="ep4" aria-pressed="false">Ep 4</button><button type="button" data-view="ep5" aria-pressed="false">Ep 5</button><button type="button" data-view="ep6" aria-pressed="false">Ep 6</button><button type="button" data-view="ep7" aria-pressed="false">Ep 7</button><button type="button" data-view="ep8" aria-pressed="false">Ep 8</button><button type="button" data-view="ep9" aria-pressed="false">Ep 9</button></div>
-        <label class="toggle"><input type="checkbox" id="hide-out"> Hide eliminated</label>
+        <label class="toggle"><input type="checkbox" id="hide-out" checked> Hide eliminated</label>
         <div class="legend">
           <span><i class="sw" style="background:var(--cell-on)"></i>On tribe</span>
           <span><i class="sw" style="background:var(--cell-mvp)"></i>MVP</span>
@@ -286,7 +286,7 @@
 <footer>
   <div class="container">
     <p>Points from <a href="https://www.globaltv.com/survivor-51-fantasy-tribe/#results">Global TV's Survivor 51 Fantasy Tribe results</a>, checked several times a day. Scoring starts with Episode 2; end-of-season placement and MVP bonuses aren't included yet.</p>
-    <p><a href="status.html" title="Update status">Updated Nov 21, 2026 · 10:11 AM EST</a></p>
+    <p><a href="status.html" title="Update status">Updated Nov 21, 2026 · 10:13 AM EST</a></p>
   </div>
 </footer>
 
@@ -301,7 +301,7 @@
   // Hide eliminated castaways (remembered per browser)
   const hideOut = document.getElementById('hide-out');
   const picks = document.getElementById('picks');
-  try { hideOut.checked = localStorage.getItem('hideOut') === '1'; } catch (e) {}
+  try { hideOut.checked = localStorage.getItem('hideOut') !== '0'; } catch (e) {}
   const applyHide = () => {
     picks.classList.toggle('hide-out', hideOut.checked);
     try { localStorage.setItem('hideOut', hideOut.checked ? '1' : '0'); } catch (e) {}
