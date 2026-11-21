@@ -143,6 +143,9 @@
   .grid tfoot .t-total td { color:var(--gold); font-weight:800; border-top:2px solid var(--line); }
   .grid tfoot .t-total th { border-top:2px solid var(--line); }
   .grid tfoot .t-rank td { color:var(--muted); font-weight:600; }
+  .hide-out .grid tbody tr.out { display:none; }
+  .toggle { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); cursor:pointer; user-select:none; }
+  .toggle input { accent-color:var(--torch); margin:0; }
   .grid tfoot th { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); }
 
   /* Castaway table */
@@ -228,6 +231,7 @@
     <div class="panel">
       <div class="toolbar">
         <div class="seg" role="group" aria-label="Points shown">{{VIEW_BUTTONS}}</div>
+        <label class="toggle"><input type="checkbox" id="hide-out"> Hide eliminated</label>
         <div class="legend">
           <span><i class="sw" style="background:var(--cell-on)"></i>On tribe</span>
           <span><i class="sw" style="background:var(--cell-mvp)"></i>MVP</span>
@@ -264,6 +268,17 @@
     buttons.forEach(x => x.setAttribute('aria-pressed', x === b));
     document.querySelectorAll('.view').forEach(v => v.hidden = v.dataset.view !== b.dataset.view);
   }));
+
+  // Hide eliminated castaways (remembered per browser)
+  const hideOut = document.getElementById('hide-out');
+  const picks = document.getElementById('picks');
+  try { hideOut.checked = localStorage.getItem('hideOut') === '1'; } catch (e) {}
+  const applyHide = () => {
+    picks.classList.toggle('hide-out', hideOut.checked);
+    try { localStorage.setItem('hideOut', hideOut.checked ? '1' : '0'); } catch (e) {}
+  };
+  hideOut.addEventListener('change', applyHide);
+  applyHide();
 
   // Highlight the player name above the hovered cell
   document.querySelectorAll('.grid').forEach(g => {

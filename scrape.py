@@ -322,6 +322,8 @@ def tribe_grid(d, ep, label):
     totals = {p["name"]: sum(value(p, c) or 0 for c in d["tribe"][p["name"]]) for p in players}
     ranks = rank(totals)
     head = "".join(f'<th class="pl" scope="col"><span>{e(p["name"])}</span></th>' for p in players)
+    # Rows hidden by "Hide eliminated": out as of this episode (season view hides nobody)
+    listed = d["episodes"][ep] if ep is not None else {}
     body = []
     for c in d["castaways"]:
         cells = []
@@ -340,7 +342,8 @@ def tribe_grid(d, ep, label):
             title += f" (merge pick, scores from Ep {MERGE_EP})" if is_merge else ""
             title += " · out" if v is None else f" · {v} pts"
             cells.append(f'<td class="{cls}" title="{e(title)}">{"" if v is None else v}</td>')
-        body.append(f'<tr><th class="cn" scope="row">{tribe_dot(d, c["name"])}{e(c["name"])}</th>{"".join(cells)}</tr>')
+        out = ' class="out"' if ep is not None and listed.get(c["name"]) is None else ""
+        body.append(f'<tr{out}><th class="cn" scope="row">{tribe_dot(d, c["name"])}{e(c["name"])}</th>{"".join(cells)}</tr>')
     tot = "".join(f"<td>{totals[p['name']]}</td>" for p in players)
     rk = "".join(f"<td>{ranks[p['name']]}</td>" for p in players)
     return (
