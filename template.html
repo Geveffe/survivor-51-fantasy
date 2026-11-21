@@ -231,7 +231,7 @@
     <div class="panel">
       <div class="toolbar">
         <div class="seg" role="group" aria-label="Points shown">{{VIEW_BUTTONS}}</div>
-        <label class="toggle"><input type="checkbox" id="hide-out"> Hide eliminated</label>
+        <label class="toggle"><input type="checkbox" id="hide-out" checked> Hide eliminated</label>
         <div class="legend">
           <span><i class="sw" style="background:var(--cell-on)"></i>On tribe</span>
           <span><i class="sw" style="background:var(--cell-mvp)"></i>MVP</span>
@@ -272,7 +272,7 @@
   // Hide eliminated castaways (remembered per browser)
   const hideOut = document.getElementById('hide-out');
   const picks = document.getElementById('picks');
-  try { hideOut.checked = localStorage.getItem('hideOut') === '1'; } catch (e) {}
+  try { hideOut.checked = localStorage.getItem('hideOut') !== '0'; } catch (e) {}
   const applyHide = () => {
     picks.classList.toggle('hide-out', hideOut.checked);
     try { localStorage.setItem('hideOut', hideOut.checked ? '1' : '0'); } catch (e) {}
